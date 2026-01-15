@@ -22,17 +22,17 @@ const Navbar = () => {
             <div className="flex h-16 items-center px-4 lg:px-8">
                 {/* Logo */}
                 <div className="flex items-center gap-3">
-                    <div className="size-7 bg-cyan-700 rounded-md flex items-center justify-center">
+                    <div className="size-7 bg-teal-700 rounded-md flex items-center justify-center">
                         <span className="text-primary-foreground font-bold text-sm">TS</span>
                     </div>
                     <h1 className="text-lg font-bold">
-                        Tasty<span className="font-normal text-muted-foreground">Station</span>
+                        Tasty<span className="font-normal text-muted-foreground"> Station</span>
                     </h1>
                 </div>
 
                 {/* Search - Desktop */}
                 {authUser && <div className="hidden lg:flex flex-1 max-w-sm mx-8">
-                    <div className="relative w-full group rounded-full">
+                    <div className="relative w-full group rounded-full ">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <input
                             placeholder="Search..."

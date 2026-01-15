@@ -34,7 +34,8 @@ const DashboardHome = () => {
             isPositive: true,
             icon: <DollarSign className="h-5 w-5" />,
             period: "This Month",
-            color: "bg-cyan-500/10 text-cyan-700"
+            color: "bg-cyan-500/10 text-cyan-700",
+            css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
         },
         {
             title: "Total Orders",
@@ -43,7 +44,8 @@ const DashboardHome = () => {
             isPositive: true,
             icon: <ShoppingBag className="h-5 w-5" />,
             period: "Today",
-            color: "bg-cyan-500/10 text-cyan-700"
+            color: "bg-cyan-500/10 text-cyan-700",
+            css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
         },
         {
             title: "Average Order Value",
@@ -52,7 +54,8 @@ const DashboardHome = () => {
             isPositive: true,
             icon: <BarChart3 className="h-5 w-5" />,
             period: "This Month",
-            color: "bg-cyan-500/10 text-cyan-700"
+            color: "bg-cyan-500/10 text-cyan-700",
+            css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
         },
         {
             title: "Pending Orders",
@@ -61,15 +64,16 @@ const DashboardHome = () => {
             isPositive: false,
             icon: <Clock className="h-5 w-5" />,
             period: "Awaiting Process",
-            color: "bg-orange-500/10 text-orange-700"
+            color: "bg-orange-500/10 text-orange-700",
+            css: "bg-orange-500/10 text-orange-700 border border-orange-500"
         }
     ];
 
     const quickActions = [
-        { title: "New Sale", icon: <ShoppingBag className="h-4 w-4" />, color: "bg-cyan-700 hover:bg-cyan-800" },
-        { title: "Add Product", icon: <Package className="h-4 w-4" />, color: "bg-cyan-700 hover:bg-cyan-800" },
-        { title: "View Inventory", icon: <Activity className="h-4 w-4" />, color: "bg-cyan-700 hover:bg-cyan-800" },
-        { title: "Customer List", icon: <Users className="h-4 w-4" />, color: "bg-cyan-700 hover:bg-cyan-800" }
+        { title: "New Sale", icon: <ShoppingBag className="h-4 w-4" />, color: "bg-transparent border border-teal-500" },
+        { title: "Add Product", icon: <Package className="h-4 w-4" />, color: "bg-transparent border border-teal-500" },
+        { title: "View Inventory", icon: <Activity className="h-4 w-4" />, color: "bg-transparent border border-teal-500" },
+        { title: "Customer List", icon: <Users className="h-4 w-4" />, color: "bg-transparent border border-teal-500" }
     ];
 
     return (
@@ -83,11 +87,11 @@ const DashboardHome = () => {
             {/* Quick Actions */}
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="flex gap-3  px-4 overflow-auto">
                     {quickActions.map((action, index) => (
                         <button
                             key={index}
-                            className={`${action.color} text-white rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] shadow-sm`}
+                            className={`${action.color}  text-teal-500 dark:text-white rounded-full px-6 py-4 flex items-center justify-center gap-2 transition-all`}
                         >
                             {action.icon}
                             <span className="font-medium text-sm">{action.title}</span>
@@ -99,7 +103,7 @@ const DashboardHome = () => {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {stats.map((stat, index) => (
-                    <Card key={index} className="border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
+                    <Card key={index} className={`${stat.css}  shadow-sm hover:shadow-md transition-shadow`}>
                         <CardHeader className="pb-2">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -206,7 +210,7 @@ const DashboardHome = () => {
 
             {/* Bottom Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <Card className="border border-gray-200 dark:border-gray-800 bg-cyan-500/10 text-cyan-700 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
                             Top Selling Product
@@ -225,7 +229,7 @@ const DashboardHome = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <Card className="border border-gray-200 dark:border-gray-800 bg-cyan-500/10 text-cyan-700 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
                             Peak Hour
@@ -244,7 +248,7 @@ const DashboardHome = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <Card className="border border-gray-200 dark:border-gray-800 bg-cyan-500/10 text-cyan-700 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
                             Customer Satisfaction
