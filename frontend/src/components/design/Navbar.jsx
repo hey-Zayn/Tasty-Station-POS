@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Bell, Search, Menu, Settings, Sun, Moon, Computer, LogOut, User, CreditCard, Users, Check } from 'lucide-react'
 import { Button } from '../ui/button'
@@ -10,14 +10,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
+import { useThemeStore } from '../../store/useThemeStore'
 import { useAuthStore } from '../../store/useAuthStore'
-
-
-
 
 const Navbar = () => {
     const { logout, authUser } = useAuthStore();
-    const [theme, setTheme] = useState("system"); // or from your theme context
+    const { theme, setTheme } = useThemeStore();
 
     return (
         <nav className="sticky top-0 z-50 w-full border-b bg-background">

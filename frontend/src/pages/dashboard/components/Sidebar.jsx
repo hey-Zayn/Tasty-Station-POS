@@ -15,8 +15,9 @@ import {
     ChefHat,
     UserCog,
     HelpCircle,
-    Bell
+    Bell,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/useAuthStore'
 
@@ -29,24 +30,24 @@ const Sidebar = () => {
     const [activeItem, setActiveItem] = useState('dashboard')
 
     const menuItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0 },
-        { id: 'orders', label: 'Order Line', icon: BringToFront, badge: 3 },
-        { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0 },
-        { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12 },
-        { id: 'inventory', label: 'Inventory', icon: Package, badge: 5 },
-        { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0 },
-        { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0 },
-        { id: 'customers', label: 'Customers', icon: Users, badge: 0 },
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0, link: '/dashboard' },
+        { id: 'orders', label: 'Order Line', icon: BringToFront, badge: 3, link: '/orders' },
+        { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0, link: '/tables' },
+        { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12, link: '/dishes' },
+        { id: 'inventory', label: 'Inventory', icon: Package, badge: 5, link: '/inventory' },
+        { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/staff' },
+        { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/users' },
+        { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/customers' },
     ]
 
     const bottomItems = [
-        { id: 'settings', label: 'Settings', icon: Settings },
-        { id: 'help', label: 'Help Center', icon: HelpCircle },
+        { id: 'settings', label: 'Settings', icon: Settings, link: '/settings' },
+        { id: 'help', label: 'Help Center', icon: HelpCircle, link: '/help' },
     ]
 
     return (
         <aside className={cn(
-            "flex flex-col h-screen bg-background border-r transition-all duration-300",
+            "sticky top-15 flex flex-col h-[90vh] bg-background border-r transition-all duration-300",
             collapsed ? "w-20" : "w-64"
         )}>
             {/* Header */}
@@ -93,43 +94,45 @@ const Sidebar = () => {
                         const isActive = activeItem === item.id
 
                         return (
-                            <button
-                                key={item.id}
-                                onClick={() => setActiveItem(item.id)}
-                                className={cn(
-                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
-                                    "hover:bg-muted hover:text-foreground",
-                                    isActive
-                                        ? "bg-cyan-700 text-primary-foreground shadow-sm"
-                                        : "text-muted-foreground"
-                                )}
-                            >
-                                <div className="relative">
-                                    <Icon className={cn(
-                                        "size-5 transition-transform",
-                                        isActive && "text-primary-foreground",
-                                        collapsed && "mx-auto"
-                                    )} />
-                                    {item.badge > 0 && (
-                                        <span className={cn(
-                                            "absolute -top-1.5 -right-1.5 size-5 rounded-full text-xs font-medium flex items-center justify-center",
-                                            isActive
-                                                ? "bg-cyan-700 text-primary-foreground"
-                                                : "bg-cyan-700 text-primary-foreground"
-                                        )}>
-                                            {item.badge}
-                                        </span>
+                            <Link key={item.id} to={item.link}>
+                                <div
+                                    onClick={() => setActiveItem(item.id)}
+                                    className={cn(
+                                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer",
+                                        "hover:bg-muted hover:text-foreground",
+                                        isActive
+                                            ? "bg-cyan-700 text-primary-foreground shadow-sm"
+                                            : "text-muted-foreground",
+
+                                    )}
+                                >
+                                    <div className="relative">
+                                        <Icon className={cn(
+                                            "size-5 transition-transform",
+                                            isActive && "text-primary-foreground",
+                                            collapsed && "mx-auto"
+                                        )} />
+                                        {item.badge > 0 && (
+                                            <span className={cn(
+                                                "absolute -top-1.5 -right-1.5 size-5 rounded-full text-xs font-medium flex items-center justify-center",
+                                                isActive
+                                                    ? "bg-cyan-700 text-primary-foreground"
+                                                    : "bg-cyan-700 text-primary-foreground"
+                                            )}>
+                                                {item.badge}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {!collapsed && (
+                                        <>
+                                            <span className="font-medium flex-1 text-left">{item.label}</span>
+                                            {isActive && (
+                                                <div className="size-1.5 rounded-full bg-cyan-700/50 animate-pulse" />
+                                            )}
+                                        </>
                                     )}
                                 </div>
-                                {!collapsed && (
-                                    <>
-                                        <span className="font-medium flex-1 text-left">{item.label}</span>
-                                        {isActive && (
-                                            <div className="size-1.5 rounded-full bg-cyan-700/50 animate-pulse" />
-                                        )}
-                                    </>
-                                )}
-                            </button>
+                            </Link>
                         )
                     })}
                 </div>
@@ -142,25 +145,26 @@ const Sidebar = () => {
                     const isActive = activeItem === item.id
 
                     return (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveItem(item.id)}
-                            className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                                "hover:bg-muted hover:text-foreground",
-                                isActive
-                                    ? "bg-muted text-foreground"
-                                    : "text-muted-foreground"
-                            )}
-                        >
-                            <Icon className={cn(
-                                "size-5",
-                                collapsed && "mx-auto"
-                            )} />
-                            {!collapsed && (
-                                <span className="font-medium">{item.label}</span>
-                            )}
-                        </button>
+                        <Link key={item.id} to={item.link}>
+                            <div
+                                onClick={() => setActiveItem(item.id)}
+                                className={cn(
+                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer",
+                                    "hover:bg-muted hover:text-foreground",
+                                    isActive
+                                        ? "bg-muted text-foreground"
+                                        : "text-muted-foreground"
+                                )}
+                            >
+                                <Icon className={cn(
+                                    "size-5",
+                                    collapsed && "mx-auto"
+                                )} />
+                                {!collapsed && (
+                                    <span className="font-medium">{item.label}</span>
+                                )}
+                            </div>
+                        </Link>
                     )
                 })}
 
