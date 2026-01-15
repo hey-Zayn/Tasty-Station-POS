@@ -58,17 +58,17 @@ const Sidebar = () => {
                 )}>
                     {!collapsed && (
                         <div className="flex items-center gap-3">
-                            <div className="size-9 bg-cyan-700 rounded-lg flex items-center justify-center shadow-lg">
+                            <div className="size-9 bg-teal-700 rounded-lg flex items-center justify-center shadow-lg">
                                 <Hamburger className="size-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <h1 className="font-bold text-lg leading-tight">TastyStation</h1>
+                                <h1 className="font-bold text-lg leading-tight">Tasty <span className="font-normal text-muted-foreground">Station</span></h1>
                                 <p className="text-xs text-muted-foreground">Admin Panel</p>
                             </div>
                         </div>
                     )}
                     {collapsed && (
-                        <div className="size-10 bg-cyan-700 rounded-lg flex items-center justify-center">
+                        <div className="size-10 bg-teal-700 rounded-lg flex items-center justify-center">
                             <Hamburger className="size-5 text-primary-foreground hidden " />
                         </div>
                     )}
@@ -87,21 +87,21 @@ const Sidebar = () => {
             </div>
 
             {/* Main Navigation */}
-            <nav className="flex-1 p-4 overflow-y-auto">
-                <div className="space-y-1">
+            <nav className="flex-1 p-4  overflow-y-auto">
+                <div className="space-y-2">
                     {menuItems.map((item) => {
                         const Icon = item.icon
                         const isActive = activeItem === item.id
 
                         return (
-                            <Link key={item.id} to={item.link}>
+                            <Link key={item.id} to={item.link} className=''>
                                 <div
                                     onClick={() => setActiveItem(item.id)}
                                     className={cn(
-                                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer",
+                                        "w-full flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer",
                                         "hover:bg-muted hover:text-foreground",
                                         isActive
-                                            ? "bg-cyan-700 text-primary-foreground shadow-sm"
+                                            ? " text-teal-700  border border-teal-600 shadow-sm"
                                             : "text-muted-foreground",
 
                                     )}
@@ -109,7 +109,7 @@ const Sidebar = () => {
                                     <div className="relative">
                                         <Icon className={cn(
                                             "size-5 transition-transform",
-                                            isActive && "text-primary-foreground",
+                                            isActive && "text-teal-700",
                                             collapsed && "mx-auto"
                                         )} />
                                         {item.badge > 0 && (
