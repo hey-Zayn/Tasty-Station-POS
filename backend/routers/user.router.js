@@ -1,6 +1,6 @@
 const { register, login } = require('../controllers/user.controller');
 const { body } = require('express-validator');
-const protectedRoute = require('../middlewares/auth.middleware');
+const { protectedRoute } = require('../middlewares/auth.middleware');
 const router = require('express').Router();
 
 router.post('/register',

@@ -2,12 +2,20 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+
+
+
+
 const connectDB = require("./config/database/connection");
 const userRouter = require("./routers/user.router");
+const menuRouter = require("./routers/menu.router");
+const tableRouter = require("./routers/table.router");
+const taxRouter = require("./routers/tax.router");
+const discountRouter = require("./routers/discount.router");
+
 
 const app = express();
-const PORT = process.env.PORT || 8686;
-
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
 const allowedOrigins = ["http://localhost:5173", "https://tastystation.vercel.app"];
@@ -26,9 +34,15 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
+app.use('/api/users', userRouter);
+app.use('/api/menu', menuRouter);
+app.use('/api/table', tableRouter);
+app.use('/api/tax', taxRouter);
+app.use('/api/discount', discountRouter);
+
+
 connectDB();
 
-app.use('/api/users', userRouter);
 
 
 app.get('/', (req, res) => {
@@ -39,6 +53,6 @@ app.get('/', (req, res) => {
 })
 
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });

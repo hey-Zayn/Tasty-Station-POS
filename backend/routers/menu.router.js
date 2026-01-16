@@ -1,0 +1,26 @@
+const express = require("express");
+const router = express.Router();
+const {
+    createCategory, getAllCategories, getCategoryById, updateCategory, deleteCategory,
+    createMenuItem, getAllMenuItems, getMenuItemById, updateMenuItem, deleteMenuItem
+} = require("../controllers/menu.controller");
+const { protectedRoute, isAdmin } = require("../middlewares/auth.middleware");
+const { validateCategory, validateMenuItem } = require("../middlewares/validators/menu.validator");
+const upload = require("../middlewares/multer.middleware");
+
+// --- Category Routes ---
+// Use upload middleware to handle multipart/form-data. This populates req.body with text fields and req.file with the image.
+router.post("/category", protectedRoute, isAdmin, upload, validateCategory, createCategory);
+router.get("/category", getAllCategories);
+router.get("/category/:id", getCategoryById);
+router.put("/category/:id", protectedRoute, isAdmin, upload, updateCategory);
+router.delete("/category/:id", protectedRoute, isAdmin, deleteCategory);
+
+// --- Menu Item Routes ---
+router.post("/item", protectedRoute, isAdmin, upload, validateMenuItem, createMenuItem);
+router.get("/item", getAllMenuItems);
+router.get("/item/:id", getMenuItemById);
+router.put("/item/:id", protectedRoute, isAdmin, upload, updateMenuItem);
+router.delete("/item/:id", protectedRoute, isAdmin, deleteMenuItem);
+
+module.exports = router;
