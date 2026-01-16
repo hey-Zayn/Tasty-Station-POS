@@ -11,6 +11,11 @@ import OrderPage from './pages/dashboard/page/OrderPage'
 import ManageTables from './pages/dashboard/page/ManageTables'
 import Inventory from './pages/dashboard/page/Inventory'
 import Dishes from './pages/dashboard/page/Dishes'
+import AdminDashboard from './pages/Admin/AdminDashboard'
+import AdminHome from './pages/Admin/pages/AdminHome'
+import MenuMangement from './pages/Admin/pages/MenuMangement'
+import AddCategory from './pages/Admin/pages/AddCategory'
+import AddMenu from './pages/Admin/pages/AddMenu'
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -54,6 +59,13 @@ const App = () => {
         <Route path="tables" element={<ManageTables />} />
         <Route path="inventory" element={<Inventory />} />
         <Route path="dishes" element={<Dishes />} />
+      </Route>
+
+      <Route path='/admin' element={authUser && authUser.role === 'admin' ? <AdminDashboard /> : <Navigate to={authUser ? "/" : "/login"} />} >
+        <Route index element={<AdminHome />} />
+        <Route path="/admin/menu" element={<MenuMangement />} />
+        <Route path="/admin/add-category" element={<AddCategory />} />
+        <Route path="/admin/add-menu" element={<AddMenu />} />
       </Route>
 
     </Routes>
