@@ -25,6 +25,18 @@ const OrderCardView = ({ orders, selectedOrderId, onSelectOrder }) => {
             bgColor: 'bg-amber-50 dark:bg-amber-950/20',
             badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
         },
+        Preparing: {
+            icon: Timer,
+            color: 'text-orange-600',
+            bgColor: 'bg-orange-50 dark:bg-orange-950/20',
+            badge: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+        },
+        Ready: {
+            icon: CheckCircle2,
+            color: 'text-cyan-600',
+            bgColor: 'bg-cyan-50 dark:bg-cyan-950/20',
+            badge: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300'
+        },
         Completed: {
             icon: CheckCircle2,
             color: 'text-emerald-600',

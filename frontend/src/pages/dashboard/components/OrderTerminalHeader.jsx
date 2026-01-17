@@ -18,7 +18,9 @@ const OrderTerminalHeader = ({
 }) => {
     const statusTabs = [
         { id: 'all', label: 'All', value: 'All', count: stats?.total || 0 },
-        { id: 'pending', label: 'On - process', value: 'Pending', count: stats?.pending || 0 },
+        { id: 'pending', label: 'Incoming', value: 'Pending', count: stats?.pending || 0 },
+        { id: 'preparing', label: 'Preparing', value: 'Preparing', count: stats?.preparing || 0 },
+        { id: 'ready', label: 'Ready', value: 'Ready', count: stats?.ready || 0 },
         { id: 'completed', label: 'Completed', value: 'Completed', count: stats?.completed || 0 },
     ];
 

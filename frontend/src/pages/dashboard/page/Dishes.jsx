@@ -7,7 +7,7 @@ import OrderTerminalHeader from '../components/OrderTerminalHeader';
 import OrderCardView from '../components/OrderCardView';
 import OrderTableView from '../components/OrderTableView';
 import OrderSummarySidebar from '../components/OrderSummarySidebar';
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Dishes = () => {
@@ -21,16 +21,26 @@ const Dishes = () => {
     useEffect(() => {
         getAllOrders();
         const timer = setInterval(() => setCurrentTime(new Date()), 30000);
-        return () => clearInterval(timer);
+        const poll = setInterval(() => getAllOrders(), 15000);
+        return () => {
+            clearInterval(timer);
+            clearInterval(poll);
+        };
     }, [getAllOrders]);
 
     // Handle initial selection or clearing if orders change
     useEffect(() => {
         if (selectedOrder) {
             const updated = recentOrders.find(o => o._id === selectedOrder._id);
-            if (updated) setSelectedOrder(updated);
+            if (updated) {
+                if (JSON.stringify(updated) !== JSON.stringify(selectedOrder)) {
+                    setSelectedOrder(updated);
+                }
+            } else {
+                setSelectedOrder(null);
+            }
         }
-    }, [recentOrders]);
+    }, [recentOrders, selectedOrder]);
 
     const filteredOrders = useMemo(() => {
         return recentOrders.filter(order => {
@@ -47,6 +57,8 @@ const Dishes = () => {
     const stats = useMemo(() => ({
         total: recentOrders.length,
         pending: recentOrders.filter(o => o.status === "Pending").length,
+        preparing: recentOrders.filter(o => o.status === "Preparing").length,
+        ready: recentOrders.filter(o => o.status === "Ready").length,
         completed: recentOrders.filter(o => o.status === "Completed").length,
         cancelled: recentOrders.filter(o => o.status === "Cancelled").length,
     }), [recentOrders]);

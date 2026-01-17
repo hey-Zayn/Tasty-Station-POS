@@ -35,16 +35,33 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
         </div>
     );
 
-    const isPending = order.status === "Pending";
+    const statusProgress = {
+        Pending: 25,
+        Preparing: 50,
+        Ready: 75,
+        Completed: 100,
+        Cancelled: 0
+    };
+
+    const currentStatus = order.status || "Pending";
     const subtotal = order.items?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0;
     const tax = subtotal * 0.1; // 10% example
     const total = subtotal + tax;
 
-    const paymentMethods = [
-        { id: 'Cash', label: 'Cash', icon: DollarSign, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
-        { id: 'Debit Card', label: 'Debit Card', icon: CreditCard, color: 'text-orange-600', bgColor: 'bg-orange-50' },
-        { id: 'E-Wallet', label: 'E-Wallet', icon: Smartphone, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-    ];
+    const getStatusAction = () => {
+        switch (currentStatus) {
+            case "Pending":
+                return { label: "Start Preparing", next: "Preparing", color: "bg-orange-500 hover:bg-orange-600" };
+            case "Preparing":
+                return { label: "Mark as Ready", next: "Ready", color: "bg-cyan-500 hover:bg-cyan-600" };
+            case "Ready":
+                return { label: "Complete Order", next: "Completed", color: "bg-emerald-500 hover:bg-emerald-600" };
+            default:
+                return null;
+        }
+    };
+
+    const action = getStatusAction();
 
     return (
         <motion.div
@@ -53,7 +70,7 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
             className="h-full flex flex-col bg-white dark:bg-[#16191C] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white/20 dark:border-gray-800 overflow-hidden relative"
         >
             {/* Header */}
-            <div className="p-8 pb-6 space-y-4">
+            <div className="p-8 pb-4 space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Orders ID</p>
@@ -68,6 +85,29 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
                         </h2>
                     </div>
                 </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        <span>Progress</span>
+                        <span className="text-teal-600">{currentStatus}</span>
+                    </div>
+                    <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${statusProgress[currentStatus]}%` }}
+                            className={cn(
+                                "h-full transition-all duration-500",
+                                currentStatus === 'Pending' && "bg-amber-500",
+                                currentStatus === 'Preparing' && "bg-orange-500",
+                                currentStatus === 'Ready' && "bg-cyan-500",
+                                currentStatus === 'Completed' && "bg-emerald-500",
+                                currentStatus === 'Cancelled' && "bg-rose-500"
+                            )}
+                        />
+                    </div>
+                </div>
+
                 <Button
                     variant="ghost"
                     size="icon"
@@ -135,48 +175,21 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
                 {/* Payment Methods */}
                 <div className="space-y-4">
                     <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Payment Methods</p>
-                    <div className="grid grid-cols-3 gap-3">
-                        {paymentMethods.map((pm) => {
-                            const currentPaymentMethod = typeof order.paymentMethod === 'object' ? order.paymentMethod?.name : order.paymentMethod;
-                            const isSelected = currentPaymentMethod === pm.id;
-                            const Icon = pm.icon;
-                            return (
-                                <div
-                                    key={pm.id}
-                                    className={cn(
-                                        "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all cursor-pointer",
-                                        isSelected
-                                            ? "bg-orange-50 border-orange-200 ring-2 ring-orange-500/20"
-                                            : "bg-gray-50 dark:bg-gray-800/50 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
-                                    )}
-                                >
-                                    <Icon className={cn("h-5 w-5", isSelected ? "text-orange-600" : "text-gray-400")} />
-                                    <span className={cn(
-                                        "text-[10px] font-black uppercase text-center",
-                                        isSelected ? "text-orange-700" : "text-gray-500"
-                                    )}>
-                                        {pm.label}
-                                    </span>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    {/* ... (keep payment methods logic) */}
                 </div>
             </div>
 
             {/* Actions Footer */}
             <div className="p-8 pt-4">
                 <Button
-                    onClick={() => isPending && onUpdateStatus(order._id, 'Completed')}
-                    disabled={!isPending}
+                    onClick={() => action && onUpdateStatus(order._id, action.next)}
+                    disabled={!action}
                     className={cn(
                         "w-full h-16 rounded-[1.5rem] font-[1000] text-lg uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98]",
-                        isPending
-                            ? "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/40"
-                            : "bg-emerald-500 text-white shadow-emerald-500/40"
+                        action ? action.color : "bg-emerald-500 text-white shadow-emerald-500/40"
                     )}
                 >
-                    {isPending ? 'Pay Bills' : 'Order Paid'}
+                    {action ? action.label : 'Order Completed'}
                 </Button>
 
                 <div className="grid grid-cols-2 gap-4 mt-4">

@@ -42,7 +42,7 @@ const Navbar = () => {
                     </div>
                 </div>}
                 {authUser && authUser.role === "admin" && <div className="flex gap-2 max-sm:hidden">
-                    <Link to="/">
+                    <Link to="/dashboard">
                         <Button>
                             Cashier
                         </Button>

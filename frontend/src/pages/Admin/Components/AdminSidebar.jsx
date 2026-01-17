@@ -17,6 +17,7 @@ import {
     HelpCircle,
     Bell,
     ShoppingCart,
+    TrendingUp,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
@@ -34,11 +35,14 @@ const AdminSidebar = () => {
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0, link: '/admin' },
         { id: 'menu', label: 'Menu', icon: ShoppingCart, badge: 3, link: '/admin/menu' },
         { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0, link: '/admin/tables' },
-        { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12, link: '/admin/dishes' },
+        // { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12, link: '/admin/dishes' },
         { id: 'inventory', label: 'Inventory', icon: Package, badge: 5, link: '/admin/inventory' },
         { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/admin/staff' },
-        { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/admin/users' },
-        { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/admin/customers' },
+        // { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/admin/users' },
+        // { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/admin/customers' },
+        { id: 'customer-history', label: 'Customer History', icon: Users, badge: 0, link: '/admin/customer-history' },
+        { id: 'reports', label: 'Reports', icon: TrendingUp, badge: 0, link: '/admin/reports' },
+        { id: 'pos-terminal', label: 'POS Terminal', icon: BringToFront, badge: 0, link: '/orders' },
     ]
 
     const bottomItems = [
@@ -48,7 +52,7 @@ const AdminSidebar = () => {
 
     return (
         <aside className={cn(
-            "sticky top-15 flex flex-col h-[90vh] bg-background border-r transition-all duration-300",
+            "sticky top-16 flex flex-col h-[calc(100vh-64px)] bg-background border-r transition-all duration-300",
             collapsed ? "w-20" : "w-64"
         )}>
             {/* Header */}

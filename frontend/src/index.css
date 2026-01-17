@@ -122,9 +122,6 @@
   }
 }
 
-
-
-
 /* Modern Professional Scrollbar */
 * {
   scrollbar-width: thin;
@@ -162,6 +159,26 @@
 
 ::-webkit-scrollbar-corner {
   background: #f7fafc;
+}
+
+/* Custom Kitchen Dashboard Animations */
+@keyframes pulse-subtle {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4);
+  }
+  70% {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 10px rgba(244, 63, 94, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite;
 }
 
 /* Smooth scrolling for the entire page */
