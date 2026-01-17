@@ -1,5 +1,16 @@
 const { Category, MenuItem } = require("../models/menu.model");
 const cloudinary = require("../config/cloudinary/cloudinary");
+const fs = require('fs');
+
+// Helper to delete temporary file
+const deleteTempFile = (path) => {
+    setTimeout(() => {
+        fs.unlink(path, (err) => {
+            if (err) console.error("Error deleting temp file:", err);
+            else console.log("Temp file deleted:", path);
+        });
+    }, 30000); // 30 seconds delay
+};
 
 // --- Category Controllers ---
 
@@ -17,6 +28,7 @@ const createCategory = async (req, res) => {
                 folder: "pos_menu_categories"
             });
             image = uploadResponse.secure_url;
+            deleteTempFile(req.file.path);
         } else if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_categories"
@@ -61,6 +73,7 @@ const updateCategory = async (req, res) => {
                 folder: "pos_menu_categories"
             });
             updateData.image = uploadResponse.secure_url;
+            deleteTempFile(req.file.path);
         } else if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_categories"
@@ -119,6 +132,7 @@ const createMenuItem = async (req, res) => {
                 folder: "pos_menu_items"
             });
             image = uploadResponse.secure_url;
+            deleteTempFile(req.file.path);
         } else if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_items"
@@ -177,6 +191,7 @@ const updateMenuItem = async (req, res) => {
                 folder: "pos_menu_items"
             });
             updateData.image = uploadResponse.secure_url;
+            deleteTempFile(req.file.path);
         } else if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_items"

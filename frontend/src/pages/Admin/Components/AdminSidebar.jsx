@@ -33,12 +33,12 @@ const AdminSidebar = () => {
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0, link: '/admin' },
         { id: 'menu', label: 'Menu', icon: ShoppingCart, badge: 3, link: '/admin/menu' },
-        { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0, link: '/tables' },
-        { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12, link: '/dishes' },
-        { id: 'inventory', label: 'Inventory', icon: Package, badge: 5, link: '/inventory' },
-        { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/staff' },
-        { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/users' },
-        { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/customers' },
+        { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0, link: '/admin/tables' },
+        { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12, link: '/admin/dishes' },
+        { id: 'inventory', label: 'Inventory', icon: Package, badge: 5, link: '/admin/inventory' },
+        { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/admin/staff' },
+        { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/admin/users' },
+        { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/admin/customers' },
     ]
 
     const bottomItems = [

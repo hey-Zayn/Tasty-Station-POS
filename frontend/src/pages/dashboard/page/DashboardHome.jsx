@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
     Card,
     CardContent,
@@ -18,83 +18,94 @@ import {
     Clock,
     BarChart3,
     PieChart as PieChartIcon,
-    Activity
+    Activity,
+    Loader2
 } from 'lucide-react'
 import { PieChartDashboard } from '../components/PieChartDashboard'
 import { ChartRadarDotsDashboard } from '../components/ChartRadarDotsDashboard'
 import OrderTable from '../components/OrderTable'
+import { useOrderStore } from '@/store/useOrderStore'
 
 const DashboardHome = () => {
-    // Mock data for POS dashboard
-    const stats = [
+    const { stats, recentOrders, getStats, isLoading } = useOrderStore();
+
+    useEffect(() => {
+        getStats();
+    }, []);
+
+    // POS dashboard stats mapping
+    const statCards = [
         {
             title: "Total Revenue",
-            value: "Rs 52,480",
-            change: "+12.5%",
+            value: `Rs ${stats?.totalRevenue?.toLocaleString() || '0'}`,
+            change: "+12.5%", // These could be calculated if we had historical data
             isPositive: true,
             icon: <DollarSign className="h-5 w-5" />,
-            period: "This Month",
+            period: "All Time",
             color: "bg-cyan-500/10 text-cyan-700",
             css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
         },
         {
             title: "Total Orders",
-            value: "1,284",
+            value: stats?.totalOrders || '0',
             change: "+8.2%",
             isPositive: true,
             icon: <ShoppingBag className="h-5 w-5" />,
-            period: "Today",
+            period: "Cumulative",
             color: "bg-cyan-500/10 text-cyan-700",
             css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
         },
         {
             title: "Average Order Value",
-            value: "Rs 2,450",
+            value: `Rs ${Math.round(stats?.avgOrderValue || 0).toLocaleString()}`,
             change: "+5.3%",
             isPositive: true,
             icon: <BarChart3 className="h-5 w-5" />,
-            period: "This Month",
+            period: "Per Order",
             color: "bg-cyan-500/10 text-cyan-700",
             css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
         },
         {
             title: "Pending Orders",
-            value: "24",
+            value: stats?.pendingOrders || '0',
             change: "-3.2%",
             isPositive: false,
             icon: <Clock className="h-5 w-5" />,
-            period: "Awaiting Process",
+            period: "Action Required",
             color: "bg-orange-500/10 text-orange-700",
             css: "bg-orange-500/10 text-orange-700 border border-orange-500"
         }
     ];
 
     const quickActions = [
-        { title: "New Sale", icon: <ShoppingBag className="h-4 w-4" />, color: "bg-transparent border border-teal-500" },
-        { title: "Add Product", icon: <Package className="h-4 w-4" />, color: "bg-transparent border border-teal-500" },
-        { title: "View Inventory", icon: <Activity className="h-4 w-4" />, color: "bg-transparent border border-teal-500" },
-        { title: "Customer List", icon: <Users className="h-4 w-4" />, color: "bg-transparent border border-teal-500" }
+        { title: "New Sale", icon: <ShoppingBag className="h-4 w-4" />, color: "bg-transparent border border-teal-500", path: "/dashboard/order" },
+        { title: "Manage Menu", icon: <Package className="h-4 w-4" />, color: "bg-transparent border border-teal-500", path: "/dashboard/items" },
+        { title: "Tables", icon: <Activity className="h-4 w-4" />, color: "bg-transparent border border-teal-500", path: "/dashboard/tables" },
+        { title: "Customers", icon: <Users className="h-4 w-4" />, color: "bg-transparent border border-teal-500", path: "/dashboard/clients" }
     ];
+
+    if (isLoading && !stats) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
-            {/* Header */}
-            {/* <div className="mb-6">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">POS Dashboard</h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">Overview of your point of sale operations and analytics</p>
-            </div> */}
-
             {/* Quick Actions */}
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-                <div className="flex gap-3  px-4 overflow-auto">
+                <div className="flex gap-3 px-4 overflow-x-auto scrollbar-hide">
                     {quickActions.map((action, index) => (
                         <button
                             key={index}
-                            className={`${action.color}  text-teal-500 dark:text-white rounded-full px-6 py-4 flex items-center justify-center gap-2 transition-all`}
+                            onClick={() => window.location.href = action.path}
+                            className={`${action.color} text-teal-500 dark:text-white rounded-full px-6 py-4 flex items-center justify-center gap-2 transition-all hover:bg-teal-50 shadow-sm`}
                         >
                             {action.icon}
-                            <span className="font-medium text-sm">{action.title}</span>
+                            <span className="font-medium text-sm whitespace-nowrap">{action.title}</span>
                         </button>
                     ))}
                 </div>
@@ -102,8 +113,8 @@ const DashboardHome = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {stats.map((stat, index) => (
-                    <Card key={index} className={`${stat.css}  shadow-sm hover:shadow-md transition-shadow`}>
+                {statCards.map((stat, index) => (
+                    <Card key={index} className={`${stat.css} shadow-sm hover:shadow-md transition-shadow`}>
                         <CardHeader className="pb-2">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -145,20 +156,21 @@ const DashboardHome = () => {
                 ))}
             </div>
 
+            {/* Recent Orders Table */}
+            <div>
+                <OrderTable orders={recentOrders} />
+            </div>
+
             {/* Charts Section */}
-            <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sales Analytics</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Sales by Category */}
+            <div className="mt-8">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Insights</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
                     <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                         <CardHeader className="pb-4">
                             <div className="flex items-center gap-2">
                                 <PieChartIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                 <CardTitle className="text-lg font-semibold">Sales by Category</CardTitle>
                             </div>
-                            <CardDescription>
-                                Revenue distribution across product categories
-                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="h-[300px]">
@@ -167,16 +179,12 @@ const DashboardHome = () => {
                         </CardContent>
                     </Card>
 
-                    {/* Performance Metrics */}
                     <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                         <CardHeader className="pb-4">
                             <div className="flex items-center gap-2">
                                 <Activity className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                 <CardTitle className="text-lg font-semibold">Performance Metrics</CardTitle>
                             </div>
-                            <CardDescription>
-                                Key performance indicators over time
-                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="h-[300px]">
@@ -185,87 +193,6 @@ const DashboardHome = () => {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
-
-            {/* Recent Orders Table */}
-            <div>
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Latest transactions and order status</p>
-                    </div>
-                    <button className="px-4 py-2 bg-cyan-700 text-white text-sm font-medium rounded-lg hover:bg-cyan-800 transition-colors">
-                        View All Orders
-                    </button>
-                </div>
-
-                <div className="">
-                    <div className="p-0">
-                        <div className="overflow-x-auto">
-                            <OrderTable />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <Card className="border border-gray-200 dark:border-gray-800 bg-cyan-500/10 text-cyan-700 shadow-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            Top Selling Product
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                                <Package className="h-5 w-5 text-cyan-700" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white">Wireless Earbuds Pro</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">48 units sold today</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="border border-gray-200 dark:border-gray-800 bg-cyan-500/10 text-cyan-700 shadow-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            Peak Hour
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                                <Clock className="h-5 w-5 text-cyan-700" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white">2:00 PM - 4:00 PM</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Most orders placed</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="border border-gray-200 dark:border-gray-800 bg-cyan-500/10 text-cyan-700 shadow-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            Customer Satisfaction
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                                <Users className="h-5 w-5 text-cyan-700" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white">94.2%</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Positive feedback rate</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </div>
     )
