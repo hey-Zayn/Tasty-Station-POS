@@ -71,36 +71,39 @@ const MenuMangement = () => {
                 </Link>
             </div>
 
-            {/* Category Tabs with Slider */}
-            <div className="relative group mb-8">
-                {/* Left Arrow */}
+            {/* Category Slider */}
+            <div className="relative mb-12 flex items-center group">
+                {/* Left Gradient & Arrow */}
                 {showLeftArrow && (
-                    <button
-                        onClick={() => handleScroll('left')}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-100 dark:border-gray-800 text-teal-600 transition-all hover:scale-110 active:scale-95"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
+                    <>
+                        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white dark:from-gray-900 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                        <button
+                            onClick={() => handleScroll('left')}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-100 dark:border-gray-700 text-teal-600 dark:text-teal-400 hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none ring-2 ring-transparent hover:ring-teal-500/20"
+                            aria-label="Scroll left"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                    </>
                 )}
 
                 <div
                     ref={scrollRef}
-                    className='flex items-center gap-3 overflow-x-auto py-2 px-2 scrollbar-hide no-scrollbar'
+                    onScroll={updateArrowVisibility}
+                    className='flex items-center gap-3 overflow-x-auto py-3 px-4 no-scrollbar scroll-smooth'
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     <button
                         onClick={() => setActiveCategory("All")}
                         className={cn(
-                            "flex items-center gap-2 px-6 py-2 rounded-full border transition-all duration-300 font-medium whitespace-nowrap",
+                            "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-semibold whitespace-nowrap text-sm",
                             activeCategory === "All"
-                                ? "bg-transparent text-teal-600 border-teal-600 shadow-md shadow-teal-600/20 transform scale-105"
-                                : "bg-white dark:bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400"
+                                ? "bg-teal-600 text-white border-teal-600 shadow-lg shadow-teal-600/30 transform scale-105"
+                                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-100 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-900/20"
                         )}
                     >
-                        <span className="p-1 rounded-full bg-white/20">
-                            <Utensils className="w-4 h-4" />
-                        </span>
-                        <span>All</span>
+                        <Utensils className="w-4 h-4" />
+                        <span>All Items</span>
                     </button>
                     {category.map((cat) => {
                         const isActive = activeCategory === cat._id;
@@ -109,29 +112,35 @@ const MenuMangement = () => {
                                 key={cat._id}
                                 onClick={() => setActiveCategory(cat._id)}
                                 className={cn(
-                                    "flex items-center gap-2 px-6 py-2 rounded-full border transition-all duration-300 font-medium whitespace-nowrap",
+                                    "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-semibold whitespace-nowrap text-sm",
                                     isActive
-                                        ? "bg-transparent text-teal-600 border-teal-600 shadow-md shadow-teal-600/20 transform scale-105"
-                                        : "bg-white dark:bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400"
+                                        ? "bg-teal-600 text-white border-teal-600 shadow-lg shadow-teal-600/30 transform scale-105"
+                                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-100 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-900/20"
                                 )}
                             >
-                                <span className="p-1 rounded-full bg-white/20">
-                                    {cat.image ? <img src={cat.image} alt="" className="w-4 h-4 rounded-full object-cover" /> : <Utensils className="w-4 h-4" />}
-                                </span>
+                                {cat.image ? (
+                                    <img src={cat.image} alt="" className="w-5 h-5 rounded-full object-cover" />
+                                ) : (
+                                    <Utensils className="w-4 h-4" />
+                                )}
                                 <span>{cat.name}</span>
                             </button>
                         )
                     })}
                 </div>
 
-                {/* Right Arrow */}
+                {/* Right Gradient & Arrow */}
                 {showRightArrow && (
-                    <button
-                        onClick={() => handleScroll('right')}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-100 dark:border-gray-800 text-teal-600 transition-all hover:scale-110 active:scale-95"
-                    >
-                        <ChevronRight className="w-5 h-5" />
-                    </button>
+                    <>
+                        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white dark:from-gray-900 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                        <button
+                            onClick={() => handleScroll('right')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-100 dark:border-gray-700 text-teal-600 dark:text-teal-400 hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none ring-2 ring-transparent hover:ring-teal-500/20"
+                            aria-label="Scroll right"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </>
                 )}
             </div>
 

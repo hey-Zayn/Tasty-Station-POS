@@ -17,6 +17,7 @@ import {
     HelpCircle,
     Bell,
     ShoppingCart,
+    Utensils,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
@@ -24,7 +25,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 
 const Sidebar = () => {
 
-    const { logout } = useAuthStore()
+    const { authUser, logout } = useAuthStore()
 
 
     const [collapsed, setCollapsed] = useState(false)
@@ -32,13 +33,18 @@ const Sidebar = () => {
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0, link: '/dashboard' },
+
         { id: 'orders', label: 'Order Line', icon: ShoppingCart, badge: 3, link: '/orders' },
         { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0, link: '/tables' },
-        { id: 'dishes', label: 'Manage dishes', icon: Hamburger, badge: 12, link: '/dishes' },
+        { id: 'dishes', label: 'Manage Orders', icon: Hamburger, badge: 12, link: '/dishes' },
         { id: 'inventory', label: 'Inventory', icon: Package, badge: 5, link: '/inventory' },
-        { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/staff' },
-        { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/users' },
-        { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/customers' },
+        // { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/staff' },
+        // { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/users' },
+        // { id: 'customers', label: 'Customers', icon: Users, badge: 0, link: '/customers' },
+        { id: 'kitchen', label: 'Kitchen Board', icon: Utensils, badge: 0, link: '/kitchen' },
+        ...(authUser?.role === 'admin' ? [
+            { id: 'admin-panel', label: 'Admin Panel', icon: UserRoundCog, badge: 0, link: '/admin' }
+        ] : [])
     ]
 
     const bottomItems = [
@@ -48,7 +54,7 @@ const Sidebar = () => {
 
     return (
         <aside className={cn(
-            "sticky top-15 flex flex-col h-[90vh] bg-background border-r transition-all duration-300",
+            "sticky top-16 flex flex-col h-[calc(100vh-64px)] bg-background border-r transition-all duration-300",
             collapsed ? "w-20" : "w-64"
         )}>
             {/* Header */}
@@ -113,7 +119,7 @@ const Sidebar = () => {
                                             isActive && "text-teal-700",
                                             collapsed && "mx-auto"
                                         )} />
-                                        {item.badge > 0 && (
+                                        {/* {item.badge > 0 && (
                                             <span className={cn(
                                                 "absolute -top-1.5 -right-1.5 size-5 rounded-full text-xs font-medium flex items-center justify-center",
                                                 isActive
@@ -122,7 +128,7 @@ const Sidebar = () => {
                                             )}>
                                                 {item.badge}
                                             </span>
-                                        )}
+                                        )} */}
                                     </div>
                                     {!collapsed && (
                                         <>

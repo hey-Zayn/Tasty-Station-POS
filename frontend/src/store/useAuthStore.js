@@ -60,14 +60,13 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true });
         try {
             await axiosInstance.post("/users/logout");
-            set({ authUser: null, isLoading: false });
             toast.success("Logged out successfully");
         } catch (error) {
-            console.log(error);
-            set({ isLoading: false });
-            toast.error("Logout failed");
+            console.log("Logout API error:", error);
+            // Even if the API fails, we clear the local state to let the user "log out"
+            toast.error("Logout sync failed, but local session cleared");
         } finally {
-            set({ isLoading: false });
+            set({ authUser: null, isLoading: false });
         }
     },
 

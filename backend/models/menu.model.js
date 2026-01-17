@@ -42,6 +42,11 @@ const menuItemSchema = new mongoose.Schema({
         ref: "Category",
         required: [true, "Category is required"]
     },
+    costPrice: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     image: {
         type: String,
         default: ""

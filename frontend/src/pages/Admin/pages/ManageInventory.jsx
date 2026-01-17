@@ -52,7 +52,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 
-const Inventory = () => {
+const ManageInventory = () => {
     const { items, stats, isLoading, fetchInventory, fetchReports, addStockItem, updateStockItem, deleteStockItem } = useInventoryStore();
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -136,179 +136,90 @@ const Inventory = () => {
             </div>
 
             {/* Stats Dashboard */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     {
                         label: "Total Items",
                         value: stats?.totalItems || 0,
                         icon: Package,
                         color: "text-blue-600",
-                        bg: "bg-blue-50 dark:bg-blue-950/30",
-                        borderColor: "border-blue-100 dark:border-blue-900/30",
-                        description: "Stock items tracked",
-                        trend: { value: "+12.5%", positive: true },
-                        trending: true
+                        bg: "bg-blue-50/50 dark:bg-blue-900/10",
+                        description: "Stock items tracked in warehouse",
+                        trend: "+12.5%",
+                        trendIcon: TrendingUp
                     },
                     {
                         label: "Low Stock",
                         value: stats?.lowStockCount || 0,
                         icon: AlertTriangle,
                         color: "text-amber-600",
-                        bg: "bg-amber-50 dark:bg-amber-950/30",
-                        borderColor: "border-amber-100 dark:border-amber-900/30",
-                        description: "Below reorder threshold",
+                        bg: "bg-amber-50/50 dark:bg-amber-900/10",
+                        description: "Items below reorder threshold",
                         alert: (stats?.lowStockCount > 0),
-                        status: "Requires Attention"
+                        subText: "Requires Attention"
                     },
                     {
                         label: "Asset Value",
-                        value: `$${(stats?.totalValue || 0).toLocaleString()}`,
+                        value: `Rs ${(stats?.totalValue || 0).toLocaleString()}`,
                         icon: DollarSign,
                         color: "text-emerald-600",
-                        bg: "bg-emerald-50 dark:bg-emerald-950/30",
-                        borderColor: "border-emerald-100 dark:border-emerald-900/30",
-                        description: "Total inventory value",
-                        trend: { value: "+5.2%", positive: true },
-                        trending: true
+                        bg: "bg-emerald-50/50 dark:bg-emerald-900/10",
+                        description: "Total value of current inventory",
+                        trend: "+5.2%",
+                        trendIcon: TrendingUp
                     },
                     {
                         label: "Reorders",
                         value: stats?.lowStockCount || 0,
                         icon: RefreshCw,
                         color: "text-purple-600",
-                        bg: "bg-purple-50 dark:bg-purple-950/30",
-                        borderColor: "border-purple-100 dark:border-purple-900/30",
+                        bg: "bg-purple-50/50 dark:bg-purple-950/10",
                         description: "Pending procurement tasks",
-                        status: "Active Tasks"
+                        subText: "Active Tasks"
                     }
-                ].map((stat, index) => (
+                ].map((stat, i) => (
                     <motion.div
-                        key={index}
+                        key={i}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ scale: 1.02 }}
+                        transition={{ delay: i * 0.1 }}
                     >
                         <Card className={cn(
-                            "h-full border overflow-hidden transition-all duration-200",
-                            "hover:shadow-lg hover:border-border/70",
-                            stat.borderColor,
-                            stat.alert && "ring-1 ring-amber-500/20"
+                            "  rounded-[2rem] overflow-hidden bg-white border-2 border-gray-200 dark:border-teal-700 hover:bg-[#d6e8ed] shadow-md dark:bg-[#16191C] h-full transition-all hover:shadow-xl hover:-translate-y-1",
+                            stat.alert && "ring-2 ring-amber-500/20"
                         )}>
-                            <CardContent className="p-5">
-                                {/* Header */}
-                                <div className="flex items-start justify-between mb-4">
+                            <CardContent className="p-7 space-y-6">
+                                <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className={cn(
-                                            "p-2.5 rounded-lg shadow-sm",
-                                            stat.bg,
-                                            stat.alert && "animate-pulse"
-                                        )}>
+                                        <div className={cn("p-2.5 rounded-xl", stat.bg)}>
                                             <stat.icon className={cn("h-5 w-5", stat.color)} />
                                         </div>
-                                        <div>
-                                            <span className="text-sm font-medium text-muted-foreground">
-                                                {stat.label}
-                                            </span>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                {stat.trending && (
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className={cn(
-                                                            "h-5 px-1.5 text-xs font-normal",
-                                                            stat.trend.positive
-                                                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                                                                : "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
-                                                        )}
-                                                    >
-                                                        {stat.trend.value}
-                                                    </Badge>
-                                                )}
-                                                {stat.status && (
-                                                    <Badge
-                                                        variant="outline"
-                                                        className={cn(
-                                                            "h-5 px-1.5 text-xs border",
-                                                            stat.alert
-                                                                ? "border-amber-200 text-amber-700 dark:border-amber-900 dark:text-amber-400"
-                                                                : "border-border text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {stat.status}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </div>
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-tight">{stat.label}</span>
                                     </div>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
+                                    <MoreVertical className="h-4 w-4 text-gray-300 dark:text-gray-600 cursor-pointer" />
                                 </div>
 
-                                {/* Value Display */}
-                                <div className="space-y-2">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className={cn(
-                                            "text-2xl font-bold",
-                                            stat.alert ? "text-amber-700 dark:text-amber-400" : "text-foreground"
-                                        )}>
+                                <div className="space-y-1">
+                                    <div className="flex items-baseline gap-3">
+                                        <h3 className="text-3xl font-[1000] tracking-tighter text-gray-900 dark:text-white">
                                             {stat.value}
-                                        </span>
-
-                                        {stat.trending && (
-                                            <span className={cn(
-                                                "text-xs font-medium flex items-center",
-                                                stat.trend.positive
-                                                    ? "text-emerald-600 dark:text-emerald-400"
-                                                    : "text-rose-600 dark:text-rose-400"
-                                            )}>
-                                                {stat.trend.positive ? (
-                                                    <TrendingUp className="h-3 w-3 mr-1" />
-                                                ) : (
-                                                    <TrendingDown className="h-3 w-3 mr-1" />
-                                                )}
-                                                {stat.trend.value}
+                                        </h3>
+                                        {stat.trend && (
+                                            <div className="flex items-center text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                                <stat.trendIcon className="h-3 w-3 mr-0.5" />
+                                                {stat.trend}
+                                            </div>
+                                        )}
+                                        {stat.subText && (
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                                                {stat.subText}
                                             </span>
                                         )}
                                     </div>
-
-                                    {/* Description */}
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                    <p className="text-[11px] leading-relaxed font-medium text-gray-400 dark:text-gray-500 max-w-[80%]">
                                         {stat.description}
                                     </p>
-
-
-
-
-                                    {/* Action Button for reorders */}
-                                    {stat.label === "Reorders" && stats?.lowStockCount > 0 && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="w-full mt-3 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                                        >
-                                            <RefreshCw className="mr-2 h-3.5 w-3.5" />
-                                            Process Reorders
-                                        </Button>
-                                    )}
                                 </div>
-
-                                {/* Decorative Element */}
-                                <div className={cn(
-                                    "absolute bottom-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity",
-                                    stat.alert
-                                        ? "bg-gradient-to-r from-amber-400 to-amber-600"
-                                        : stat.color === "text-blue-600"
-                                            ? "bg-gradient-to-r from-blue-400 to-blue-600"
-                                            : stat.color === "text-emerald-600"
-                                                ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
-                                                : "bg-gradient-to-r from-purple-400 to-purple-600"
-                                )} />
                             </CardContent>
                         </Card>
                     </motion.div>
@@ -522,4 +433,4 @@ const Inventory = () => {
     );
 };
 
-export default Inventory;
+export default ManageInventory;

@@ -192,13 +192,31 @@ const getOrderById = async (req, res) => {
     }
 };
 
+// Get orders for kitchen (Pending, Preparing, Ready)
+const getKitchenOrders = async (req, res) => {
+    try {
+        const orders = await Order.find({
+            status: { $in: ["Pending", "Preparing", "Ready"] }
+        })
+            .populate("client", "name")
+            .populate("table", "name")
+            .populate("user", "name")
+            .sort({ createdAt: 1 }); // Oldest first for kitchen
+
+        res.status(200).json({ success: true, orders });
+    } catch (error) {
+        console.error("Get Kitchen Orders Error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
 // Update order status
 const updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
         const { id } = req.params;
 
-        if (!["Pending", "Completed", "Cancelled"].includes(status)) {
+        if (!["Pending", "Preparing", "Ready", "Completed", "Cancelled"].includes(status)) {
             return res.status(400).json({ success: false, message: "Invalid status" });
         }
 
@@ -221,4 +239,4 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, getAllOrders, getOrderById, getOrderStats, updateOrderStatus };
+module.exports = { createOrder, getAllOrders, getOrderById, getOrderStats, updateOrderStatus, getKitchenOrders };

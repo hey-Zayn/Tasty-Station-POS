@@ -11,12 +11,19 @@ import OrderPage from './pages/dashboard/page/OrderPage'
 import ManageTables from './pages/dashboard/page/ManageTables'
 import Inventory from './pages/dashboard/page/Inventory'
 import Dishes from './pages/dashboard/page/Dishes'
-import AdminDashboard from './pages/Admin/AdminDashboard'
+import AdminLayout from './pages/Admin/AdminLayout'
 import AdminHome from './pages/Admin/pages/AdminHome'
 import MenuMangement from './pages/Admin/pages/MenuMangement'
 import AddCategory from './pages/Admin/pages/AddCategory'
 import AddMenu from './pages/Admin/pages/AddMenu'
 import AdminTables from './pages/Admin/pages/AdminTables'
+import Customer from './pages/dashboard/page/Customer'
+import ManageInventory from './pages/Admin/pages/ManageInventory'
+import AdminReports from './pages/Admin/pages/AdminReports'
+import StaffManagement from './pages/Admin/pages/StaffManagement'
+import CustomerHistory from './pages/Admin/pages/CustomerHistory'
+import AdminDashboard from './pages/Admin/pages/AdminDashboard'
+import KitchenDashboard from './pages/dashboard/page/KitchenDashboard'
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -24,7 +31,7 @@ const App = () => {
 
   React.useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   React.useEffect(() => {
     const root = window.document.documentElement;
@@ -49,25 +56,39 @@ const App = () => {
   return (
     <Routes>
 
-      <Route path="/login" element={!authUser ? <Login /> : <Navigate to="/" />} />
-      <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to="/" />} />
+      <Route
+        path="/login"
+        element={!authUser ? <Login /> : <Navigate to={authUser.role === 'admin' ? "/admin" : "/"} />}
+      />
+      <Route
+        path="/signup"
+        element={!authUser ? <Signup /> : <Navigate to={authUser.role === 'admin' ? "/admin" : "/"} />}
+      />
 
 
       <Route path="/" element={authUser ? <Dashboard /> : <Navigate to="/login" />} >
-        <Route index element={<Navigate to="dashboard" />} />
+        <Route index element={
+          authUser?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="dashboard" />
+        } />
         <Route path="dashboard" element={<DashboardHome />} />
         <Route path="orders" element={<OrderPage />} />
         <Route path="tables" element={<ManageTables />} />
         <Route path="inventory" element={<Inventory />} />
         <Route path="dishes" element={<Dishes />} />
+        <Route path="customers" element={<Customer />} />
+        <Route path="kitchen" element={<KitchenDashboard />} />
       </Route>
 
-      <Route path='/admin' element={authUser && authUser.role === 'admin' ? <AdminDashboard /> : <Navigate to={authUser ? "/" : "/login"} />} >
-        <Route index element={<AdminHome />} />
+      <Route path='/admin' element={authUser && authUser.role === 'admin' ? <AdminLayout /> : <Navigate to={authUser ? "/" : "/login"} />} >
+        <Route index element={<AdminDashboard />} />
         <Route path="/admin/menu" element={<MenuMangement />} />
         <Route path="/admin/add-category" element={<AddCategory />} />
         <Route path="/admin/add-menu" element={<AddMenu />} />
         <Route path="/admin/tables" element={<AdminTables />} />
+        <Route path="/admin/inventory" element={<ManageInventory />} />
+        <Route path="/admin/reports" element={<AdminReports />} />
+        <Route path="/admin/staff" element={<StaffManagement />} />
+        <Route path="/admin/customer-history" element={<CustomerHistory />} />
       </Route>
 
     </Routes>
