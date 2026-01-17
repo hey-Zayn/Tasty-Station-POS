@@ -12,6 +12,7 @@ import {
 } from "../ui/dropdown-menu"
 import { useThemeStore } from '../../store/useThemeStore'
 import { useAuthStore } from '../../store/useAuthStore'
+import { Link } from 'react-router-dom'
 
 const Navbar = () => {
     const { logout, authUser } = useAuthStore();
@@ -39,6 +40,18 @@ const Navbar = () => {
                             className="w-full pl-9 pr-4 py-2 text-sm border rounded-full focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-transparent"
                         />
                     </div>
+                </div>}
+                {authUser && authUser.role === "admin" && <div className="flex gap-2 max-sm:hidden">
+                    <Link to="/">
+                        <Button>
+                            Cashier
+                        </Button>
+                    </Link>
+                    <Link to="/admin">
+                        <Button>
+                            Admin
+                        </Button>
+                    </Link>
                 </div>}
 
                 {/* Right Actions */}

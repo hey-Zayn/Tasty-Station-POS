@@ -16,6 +16,7 @@ import AdminHome from './pages/Admin/pages/AdminHome'
 import MenuMangement from './pages/Admin/pages/MenuMangement'
 import AddCategory from './pages/Admin/pages/AddCategory'
 import AddMenu from './pages/Admin/pages/AddMenu'
+import AdminTables from './pages/Admin/pages/AdminTables'
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -66,6 +67,7 @@ const App = () => {
         <Route path="/admin/menu" element={<MenuMangement />} />
         <Route path="/admin/add-category" element={<AddCategory />} />
         <Route path="/admin/add-menu" element={<AddMenu />} />
+        <Route path="/admin/tables" element={<AdminTables />} />
       </Route>
 
     </Routes>

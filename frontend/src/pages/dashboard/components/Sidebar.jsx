@@ -16,6 +16,7 @@ import {
     UserCog,
     HelpCircle,
     Bell,
+    ShoppingCart,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
@@ -31,9 +32,9 @@ const Sidebar = () => {
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0, link: '/dashboard' },
-        { id: 'orders', label: 'Order Line', icon: BringToFront, badge: 3, link: '/orders' },
+        { id: 'orders', label: 'Order Line', icon: ShoppingCart, badge: 3, link: '/orders' },
         { id: 'tables', label: 'Manage Tables', icon: Grid2x2Check, badge: 0, link: '/tables' },
-        { id: 'dishes', label: 'Manage Dishes', icon: Hamburger, badge: 12, link: '/dishes' },
+        { id: 'dishes', label: 'Manage dishes', icon: Hamburger, badge: 12, link: '/dishes' },
         { id: 'inventory', label: 'Inventory', icon: Package, badge: 5, link: '/inventory' },
         { id: 'staff', label: 'Staff Management', icon: ChefHat, badge: 0, link: '/staff' },
         { id: 'users', label: 'Manage Users', icon: UserRoundCog, badge: 0, link: '/users' },

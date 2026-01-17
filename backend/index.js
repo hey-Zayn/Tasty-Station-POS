@@ -12,6 +12,7 @@ const menuRouter = require("./routers/menu.router");
 const tableRouter = require("./routers/table.router");
 const taxRouter = require("./routers/tax.router");
 const discountRouter = require("./routers/discount.router");
+const orderRouter = require("./routers/order.router");
 
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/menu', menuRouter);
 app.use('/api/table', tableRouter);
 app.use('/api/tax', taxRouter);
 app.use('/api/discount', discountRouter);
+app.use('/api/orders', orderRouter);
 
 
 connectDB();

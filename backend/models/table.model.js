@@ -22,6 +22,23 @@ const tableSchema = new mongoose.Schema({
         enum: ["Available", "Occupied", "Reserved"],
         default: "Available"
     },
+    reservation: {
+        bookedBy: { type: String, trim: true },
+        contact: { type: String, trim: true },
+        guests: { type: Number, min: 1 },
+        date: { type: Date },
+        notes: { type: String, trim: true }
+    },
+    person: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null
+    },
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Client",
+        default: null
+    },
     currentOrder: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Order",
