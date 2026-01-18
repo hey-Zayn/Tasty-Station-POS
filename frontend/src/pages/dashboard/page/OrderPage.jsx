@@ -4,7 +4,7 @@ import { useOrderStore } from '@/store/useOrderStore';
 import { useTableStore } from '@/store/useTableStore';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Minus, ShoppingCart, Trash2, Banknote, CreditCard, User, Utensils, Receipt, X, Loader2, Phone } from 'lucide-react';
 import { cn } from "@/lib/utils";
@@ -94,21 +94,27 @@ const OrderPage = () => {
                         </div>
                     </div>
                     {/* Categories */}
-                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                        {categories.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setSelectedCategory(cat)}
-                                className={cn(
-                                    "px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                                    selectedCategory === cat
-                                        ? "border border-teal-600 text-teal-800"
-                                        : "border border-gray-200 text-gray-600 hover:border-teal-600 hover:text-teal-800 dark:border-gray-800 dark:text-gray-400 dark:hover:border-teal-600 dark:hover:text-teal-800"
-                                )}
-                            >
-                                {cat}
-                            </button>
-                        ))}
+
+                    <div className="w-[50vw] overflow-x-auto">
+                        <ScrollArea className="w-full">
+                            <div className="flex gap-2 pb-4">
+                                {categories.map(cat => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={cn(
+                                            "px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0",
+                                            selectedCategory === cat
+                                                ? "bg-primary text-primary-foreground shadow-sm"
+                                                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                                        )}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                            <ScrollBar orientation="horizontal" />
+                        </ScrollArea>
                     </div>
                 </div>
 
