@@ -5,6 +5,7 @@ import { Hamburger, Minus, Plus, Loader2, Utensils, ChevronLeft, ChevronRight } 
 import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import { useMenuStore } from '@/store/useMenuStore'
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const MenuMangement = () => {
     const { menu, category, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();

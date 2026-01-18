@@ -1,28 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Hamburger, Minus, Plus, Loader2, Utensils, ChevronLeft, ChevronRight } from "lucide-react"
+import { Hamburger, Minus, Plus, Loader2, Utensils } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import { useMenuStore } from '@/store/useMenuStore'
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 const MenuMangement = () => {
     const { menu, category, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();
     const [activeCategory, setActiveCategory] = useState("All");
-
-    const scrollRef = React.useRef(null);
-    const [showLeftArrow, setShowLeftArrow] = useState(false);
-    const [showRightArrow, setShowRightArrow] = useState(true);
-
-    const handleScroll = (direction) => {
-        if (scrollRef.current) {
-            const scrollAmount = 300;
-            scrollRef.current.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    };
 
     useEffect(() => {
         getAllCategories();
@@ -34,30 +21,8 @@ const MenuMangement = () => {
         ? menu
         : menu.filter(item => item.category?._id === activeCategory || item.category?.name === activeCategory);
 
-    const updateArrowVisibility = () => {
-        if (scrollRef.current) {
-            const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-            setShowLeftArrow(scrollLeft > 10);
-            setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-        }
-    };
-
-    useEffect(() => {
-        const currentRef = scrollRef.current;
-        if (currentRef) {
-            currentRef.addEventListener('scroll', updateArrowVisibility);
-            // Initial check
-            updateArrowVisibility();
-        }
-        return () => {
-            if (currentRef) {
-                currentRef.removeEventListener('scroll', updateArrowVisibility);
-            }
-        };
-    }, [category]);
-
     return (
-        <div className="w-full h-[calc(100vh-5rem)] px-6 py-10 overflow-y-auto custom-scrollbar">
+        <div className="w-full h-full px-6 py-10 overflow-y-auto custom-scrollbar">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Menu Management</h1>
@@ -71,23 +36,9 @@ const MenuMangement = () => {
                 </Link>
             </div>
 
-            {/* Category Tabs with Slider */}
-            <div className="relative group mb-8">
-                {/* Left Arrow */}
-                {showLeftArrow && (
-                    <button
-                        onClick={() => handleScroll('left')}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-100 dark:border-gray-800 text-teal-600 transition-all hover:scale-110 active:scale-95"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                )}
-
-                <div
-                    ref={scrollRef}
-                    className='flex items-center gap-3 overflow-x-auto py-2 px-2 scrollbar-hide no-scrollbar'
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
+            {/* Category Tabs with ScrollArea */}
+            <ScrollArea className="whitespace-nowrap mb-8 overflow-x-auto">
+                <div className="w-[80%] flex items-center gap-3 pb-4 px-2 overflow-x-auto">
                     <button
                         onClick={() => setActiveCategory("All")}
                         className={cn(
@@ -123,17 +74,8 @@ const MenuMangement = () => {
                         )
                     })}
                 </div>
-
-                {/* Right Arrow */}
-                {showRightArrow && (
-                    <button
-                        onClick={() => handleScroll('right')}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-100 dark:border-gray-800 text-teal-600 transition-all hover:scale-110 active:scale-95"
-                    >
-                        <ChevronRight className="w-5 h-5" />
-                    </button>
-                )}
-            </div>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
 
             {/* Menu Grid */}
             {isLoading ? (
