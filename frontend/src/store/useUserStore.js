@@ -1,8 +1,6 @@
 import { create } from "zustand";
-import axios from "axios";
+import axiosInstance from "../axios/axiosInstace";
 import { toast } from "sonner";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
 const useUserStore = create((set, get) => ({
     staff: [],
@@ -12,7 +10,7 @@ const useUserStore = create((set, get) => ({
     fetchStaff: async () => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_BASE_URL}/users/staff`, { withCredentials: true });
+            const response = await axiosInstance.get("/users/staff");
             set({ staff: response.data.staff, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -23,7 +21,7 @@ const useUserStore = create((set, get) => ({
     createNewStaff: async (staffData) => {
         set({ isLoading: true });
         try {
-            const response = await axios.post(`${API_BASE_URL}/users/staff`, staffData, { withCredentials: true });
+            const response = await axiosInstance.post("/users/staff", staffData);
             set((state) => ({ staff: [...state.staff, response.data.user], isLoading: false }));
             toast.success("Staff created successfully");
             return true;
@@ -37,7 +35,7 @@ const useUserStore = create((set, get) => ({
     updateStaff: async (id, staffData) => {
         set({ isLoading: true });
         try {
-            const response = await axios.put(`${API_BASE_URL}/users/staff/${id}`, staffData, { withCredentials: true });
+            const response = await axiosInstance.put(`/users/staff/${id}`, staffData);
             set((state) => ({
                 staff: state.staff.map((s) => (s._id === id ? response.data.user : s)),
                 isLoading: false
@@ -53,7 +51,7 @@ const useUserStore = create((set, get) => ({
 
     toggleStaffStatus: async (id) => {
         try {
-            const response = await axios.patch(`${API_BASE_URL}/users/staff/${id}/status`, {}, { withCredentials: true });
+            const response = await axiosInstance.patch(`/users/staff/${id}/status`, {});
             set((state) => ({
                 staff: state.staff.map((s) => (s._id === id ? { ...s, isActive: response.data.isActive } : s))
             }));
@@ -65,7 +63,7 @@ const useUserStore = create((set, get) => ({
 
     deleteStaff: async (id) => {
         try {
-            await axios.delete(`${API_BASE_URL}/users/staff/${id}`, { withCredentials: true });
+            await axiosInstance.delete(`/users/staff/${id}`);
             set((state) => ({ staff: state.staff.filter((s) => s._id !== id) }));
             toast.success("Staff deleted successfully");
         } catch (error) {
