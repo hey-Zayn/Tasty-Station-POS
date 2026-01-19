@@ -1,11 +1,7 @@
 const { createClient } = require('redis');
 
-const redisClient = createClient({
-    username: process.env.REDIS_USERNAME,
-    password: process.env.REDIS_PASSWORD,
+const clientOptions = {
     socket: {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT,
         connectTimeout: 10000, // 10 seconds timeout
         reconnectStrategy: (retries) => {
             if (retries > 5) {
@@ -15,7 +11,18 @@ const redisClient = createClient({
             return Math.min(retries * 100, 3000); // Backoff strategy
         }
     }
-});
+};
+
+if (process.env.REDIS_URL) {
+    clientOptions.url = process.env.REDIS_URL;
+} else {
+    clientOptions.username = process.env.REDIS_USERNAME;
+    clientOptions.password = process.env.REDIS_PASSWORD;
+    clientOptions.socket.host = process.env.REDIS_HOST;
+    clientOptions.socket.port = process.env.REDIS_PORT;
+}
+
+const redisClient = createClient(clientOptions);
 
 redisClient.on('error', err => console.log('❌ Redis Client Error', err));
 
