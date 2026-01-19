@@ -25,8 +25,25 @@ const addStockItem = async (req, res) => {
 // Get all inventory items
 const getInventory = async (req, res) => {
     try {
-        const items = await Inventory.find().sort({ updatedAt: -1 });
-        res.status(200).json({ success: true, data: items });
+        const { page = 1, limit = 10 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const totalItems = await Inventory.countDocuments();
+        const items = await Inventory.find()
+            .sort({ updatedAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        res.status(200).json({
+            success: true,
+            data: items,
+            pagination: {
+                totalItems,
+                totalPages: Math.ceil(totalItems / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

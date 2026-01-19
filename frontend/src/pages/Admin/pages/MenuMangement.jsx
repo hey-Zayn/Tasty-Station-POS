@@ -37,7 +37,7 @@ const MenuMangement = () => {
             </div>
 
             {/* Category Tabs with ScrollArea */}
-            <ScrollArea className="whitespace-nowrap mb-8 overflow-x-auto">
+            {/* <ScrollArea className="whitespace-nowrap mb-8 overflow-x-auto">
                 <div className="w-[80%] flex items-center gap-3 pb-4 px-2 overflow-x-auto">
                     <button
                         onClick={() => setActiveCategory("All")}
@@ -75,7 +75,7 @@ const MenuMangement = () => {
                     })}
                 </div>
                 <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            </ScrollArea> */}
 
             {/* Menu Grid */}
             {isLoading ? (

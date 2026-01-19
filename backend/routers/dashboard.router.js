@@ -3,6 +3,8 @@ const router = express.Router();
 const dashboardController = require("../controllers/dashboard.controller");
 const { protectedRoute, isAdmin } = require("../middlewares/auth.middleware");
 
-router.get("/summary", protectedRoute, isAdmin, dashboardController.getDashboardOverview);
+const cacheMiddleware = require("../middlewares/cache.middleware");
+
+router.get("/summary", protectedRoute, isAdmin, cacheMiddleware(300), dashboardController.getDashboardOverview);
 
 module.exports = router;

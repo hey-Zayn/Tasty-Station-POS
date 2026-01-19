@@ -10,15 +10,16 @@ import { Search, Plus, Minus, ShoppingCart, Trash2, Banknote, CreditCard, User, 
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useReactToPrint } from 'react-to-print';
+import Pagination from '@/components/ui/custom-pagination';
 
 const OrderPage = () => {
-    const { menu, getAllMenuItems, isLoading: isMenuLoading } = useMenuStore();
+    const { menu, getAllMenuItems, category: categoriesList, getAllCategories, isLoading: isMenuLoading, paginationMenu } = useMenuStore();
     const { cart, addToCart, removeFromCart, placeOrder, lastOrder, resetLastOrder, isLoading: isOrderLoading } = useOrderStore();
     const { tables, getTables } = useTableStore();
 
     // Local State
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [selectedCategoryId, setSelectedCategoryId] = useState(""); // "" means All
     const [orderType, setOrderType] = useState("Dine-in"); // Dine-in, Takeaway
     const [paymentMethod, setPaymentMethod] = useState("Cash");
     const [selectedTable, setSelectedTable] = useState("");
@@ -28,20 +29,42 @@ const OrderPage = () => {
         phone: ""
     });
 
+    const [receiptMetadata, setReceiptMetadata] = useState({
+        cardLastFour: "",
+        authCode: ""
+    });
+
     const slipRef = useRef();
 
     useEffect(() => {
-        getAllMenuItems();
+        getAllMenuItems(1, 10);
+        getAllCategories(1, 100);
         getTables();
-    }, []);
+    }, [getAllMenuItems, getAllCategories, getTables]);
+
+    useEffect(() => {
+        if (lastOrder) {
+            setReceiptMetadata({
+                cardLastFour: (Math.floor(Math.random() * 9000) + 1000).toString(),
+                authCode: (Math.random().toString(36).substring(2, 8)).toUpperCase()
+            });
+        }
+    }, [lastOrder]);
+
+    const handlePageChange = (newPage) => {
+        getAllMenuItems(newPage, 10, selectedCategoryId);
+    };
+
+    const handleCategoryChange = (catId) => {
+        setSelectedCategoryId(catId);
+        getAllMenuItems(1, 10, catId);
+    };
 
     const filteredMenu = menu.filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === "All" || item.category?.name === selectedCategory;
-        return matchesSearch && matchesCategory;
+        return item.name.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
-    const categories = ["All", ...new Set(menu.map(item => item.category?.name).filter(Boolean))];
+    const categories = [{ _id: "", name: "All" }, ...categoriesList];
     const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const tax = totalAmount * 0.05; // 5% Tax example
     const finalTotal = totalAmount + tax;
@@ -100,16 +123,16 @@ const OrderPage = () => {
                             <div className="flex gap-2 pb-4">
                                 {categories.map(cat => (
                                     <button
-                                        key={cat}
-                                        onClick={() => setSelectedCategory(cat)}
+                                        key={cat._id}
+                                        onClick={() => handleCategoryChange(cat._id)}
                                         className={cn(
                                             "px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0",
-                                            selectedCategory === cat
+                                            selectedCategoryId === cat._id
                                                 ? "bg-primary text-primary-foreground shadow-sm"
                                                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                                         )}
                                     >
-                                        {cat}
+                                        {cat.name}
                                     </button>
                                 ))}
                             </div>
@@ -124,70 +147,76 @@ const OrderPage = () => {
                             <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-x-6 gap-y-20 mt-12 pb-12">
-                            {filteredMenu.map(item => {
-                                const cartItem = cart.find(c => c.menuItem._id === item._id);
-                                const quantity = cartItem ? cartItem.quantity : 0;
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-x-6 gap-y-20 mt-12 pb-12">
+                                {filteredMenu.map(item => {
+                                    const cartItem = cart.find(c => c.menuItem._id === item._id);
+                                    const quantity = cartItem ? cartItem.quantity : 0;
 
-                                return (
-                                    <Card
-                                        key={item._id}
-                                        className="relative pt-16 pb-4 px-4 overflow-visible border transition-all duration-300 shadow-sm hover:shadow-md cursor-default bg-white dark:bg-teal-900/20 border-gray-100 dark:border-gray-800 hover:border-teal-500 dark:hover:border-teal-500 group"
-                                    >
-                                        {/* Circular Image */}
-                                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full shadow-lg overflow-hidden border-4 border-white dark:border-gray-900 group-hover:scale-105 transition-transform duration-300 bg-gray-100">
-                                            {item.image ? (
-                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
-                                                    <Utensils className="w-10 h-10" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex flex-col items-center text-center mt-6 space-y-4">
-                                            {/* Details */}
-                                            <div className="space-y-1 w-full">
-                                                <span className="text-sm text-gray-400 font-medium tracking-wide uppercase">
-                                                    {item.category?.name || "Uncategorized"}
-                                                </span>
-                                                <h3 className="text-gray-900 dark:text-white font-bold text-lg leading-tight px-1 truncate w-full" title={item.name}>
-                                                    {item.name}
-                                                </h3>
-                                                <p className="text-xs text-gray-500 line-clamp-2 h-8 px-2">{item.description}</p>
+                                    return (
+                                        <Card
+                                            key={item._id}
+                                            className="relative pt-16 pb-4 px-4 overflow-visible border transition-all duration-300 shadow-sm hover:shadow-md cursor-default bg-white dark:bg-teal-900/20 border-gray-100 dark:border-gray-800 hover:border-teal-500 dark:hover:border-teal-500 group"
+                                        >
+                                            {/* Circular Image */}
+                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full shadow-lg overflow-hidden border-4 border-white dark:border-gray-900 group-hover:scale-105 transition-transform duration-300 bg-gray-100">
+                                                {item.image ? (
+                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                                                        <Utensils className="w-10 h-10" />
+                                                    </div>
+                                                )}
                                             </div>
 
-                                            {/* Price and Controls */}
-                                            <div className="flex items-center justify-between w-full pt-2 px-2">
-                                                <span className="text-xl font-bold text-teal-700 dark:text-teal-400">
-                                                    ${item.price.toFixed(2)}
-                                                </span>
+                                            <div className="flex flex-col items-center text-center mt-6 space-y-4">
+                                                {/* Details */}
+                                                <div className="space-y-1 w-full">
+                                                    <span className="text-sm text-gray-400 font-medium tracking-wide uppercase">
+                                                        {item.category?.name || "Uncategorized"}
+                                                    </span>
+                                                    <h3 className="text-gray-900 dark:text-white font-bold text-lg leading-tight px-1 truncate w-full" title={item.name}>
+                                                        {item.name}
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 line-clamp-2 h-8 px-2">{item.description}</p>
+                                                </div>
 
-                                                <div className="flex items-center gap-3">
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); removeFromCart(item._id); }}
-                                                        className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 dark:bg-red-800/50 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-red-700/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        disabled={quantity === 0}
-                                                    >
-                                                        <Minus className="w-4 h-4" />
-                                                    </button>
-
-                                                    <span className="text-gray-900 dark:text-white font-semibold w-4">
-                                                        {quantity}
+                                                {/* Price and Controls */}
+                                                <div className="flex items-center justify-between w-full pt-2 px-2">
+                                                    <span className="text-xl font-bold text-teal-700 dark:text-teal-400">
+                                                        ${item.price.toFixed(2)}
                                                     </span>
 
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                                                        className="w-8 h-8 rounded-full flex items-center justify-center bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm"
-                                                    >
-                                                        <Plus className="w-4 h-4" />
-                                                    </button>
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); removeFromCart(item._id); }}
+                                                            className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 dark:bg-red-800/50 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-red-700/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            disabled={quantity === 0}
+                                                        >
+                                                            <Minus className="w-4 h-4" />
+                                                        </button>
+
+                                                        <span className="text-gray-900 dark:text-white font-semibold w-4">
+                                                            {quantity}
+                                                        </span>
+
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                                                            className="w-8 h-8 rounded-full flex items-center justify-center bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Card>
-                                );
-                            })}
+                                        </Card>
+                                    );
+                                })}
+                            </div>
+                            <Pagination
+                                pagination={paginationMenu}
+                                onPageChange={handlePageChange}
+                            />
                         </div>
                     )}
                 </ScrollArea>
@@ -434,14 +463,14 @@ const OrderPage = () => {
                             </div>
                             <div className="flex justify-between">
                                 <span>{lastOrder?.paymentMethod === 'Card' ? 'Visa' : 'E-PAYMENT'} SALE</span>
-                                <span>{'************' + (Math.floor(Math.random() * 9000) + 1000)}</span>
+                                <span>{'************' + receiptMetadata.cardLastFour}</span>
                             </div>
                             <div className="flex justify-between font-bold text-black border-t border-gray-200 mt-1 pt-1">
                                 <span>TRANSACTION AMOUNT</span>
                                 <span>{lastOrder?.totalAmount.toFixed(2)}</span>
                             </div>
                             <p>CONTACTLESS</p>
-                            <p>AUTHORIZATION CODE - {(Math.random().toString(36).substring(2, 8)).toUpperCase()}</p>
+                            <p>AUTHORIZATION CODE - {receiptMetadata.authCode}</p>
                             <p>SEQ# 012247</p>
                             <p>VERIFIED BY PIN</p>
                             <p>AID: A0000000031010</p>

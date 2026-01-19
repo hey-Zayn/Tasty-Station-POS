@@ -110,12 +110,13 @@ const createOrder = async (req, res) => {
 // Get all orders
 const getAllOrders = async (req, res) => {
     try {
-        const { type, status, date } = req.query;
+        const { type, status, date, page = 1, limit = 10 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
         let query = {};
 
         if (type) query.type = type;
         if (status) query.status = status;
-        // Simple date filtering (could be improved for ranges)
+
         if (date) {
             const startDate = new Date(date);
             const endDate = new Date(date);
@@ -123,12 +124,24 @@ const getAllOrders = async (req, res) => {
             query.createdAt = { $gte: startDate, $lt: endDate };
         }
 
+        const totalOrders = await Order.countDocuments(query);
         const orders = await Order.find(query)
             .populate("client", "name phone")
             .populate("user", "name")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
 
-        res.status(200).json({ success: true, orders });
+        res.status(200).json({
+            success: true,
+            orders,
+            pagination: {
+                totalOrders,
+                totalPages: Math.ceil(totalOrders / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
     } catch (error) {
         console.error("Get Orders Error:", error);
         res.status(500).json({ success: false, message: "Internal server error" });

@@ -9,12 +9,22 @@ const useClientStore = create((set) => ({
     selectedClient: null,
     isLoading: false,
     error: null,
+    pagination: {
+        totalClients: 0,
+        totalPages: 0,
+        currentPage: 1,
+        limit: 10
+    },
 
-    fetchClients: async () => {
+    fetchClients: async (page = 1, limit = 10) => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_BASE_URL}/clients`, { withCredentials: true });
-            set({ clients: response.data.clients, isLoading: false });
+            const response = await axios.get(`${API_BASE_URL}/clients?page=${page}&limit=${limit}`, { withCredentials: true });
+            set({
+                clients: response.data.clients,
+                pagination: response.data.pagination,
+                isLoading: false
+            });
         } catch (error) {
             set({ error: error.message, isLoading: false });
             toast.error("Failed to fetch customers");
@@ -38,7 +48,7 @@ const useClientStore = create((set) => ({
             set((state) => ({ clients: state.clients.filter((c) => c._id !== id) }));
             toast.success("Customer record removed");
         } catch (error) {
-            toast.error("Failed to delete customer");
+            toast.error(error.response?.data?.message || "Failed to delete customer");
         }
     },
 

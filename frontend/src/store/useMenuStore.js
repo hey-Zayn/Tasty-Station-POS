@@ -6,14 +6,31 @@ export const useMenuStore = create((set) => ({
     error: null,
     menu: [],
     category: [],
+    paginationMenu: {
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 1,
+        limit: 10
+    },
+    paginationCategory: {
+        totalCategories: 0,
+        totalPages: 0,
+        currentPage: 1,
+        limit: 10
+    },
 
     // --- Categories ---
 
-    getAllCategories: async () => {
+    getAllCategories: async (page = 1, limit = 10) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axiosInstance.get("/menu/category");
-            set({ category: response.data.categories, isLoading: false, error: null });
+            const response = await axiosInstance.get(`/menu/category?page=${page}&limit=${limit}`);
+            set({
+                category: response.data.categories,
+                paginationCategory: response.data.pagination,
+                isLoading: false,
+                error: null
+            });
         } catch (error) {
             console.error("Error fetching categories:", error);
             set({
@@ -85,11 +102,19 @@ export const useMenuStore = create((set) => ({
 
     // --- Menu Items ---
 
-    getAllMenuItems: async () => {
+    getAllMenuItems: async (page = 1, limit = 10, categoryId = "") => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axiosInstance.get("/menu/item");
-            set({ menu: response.data.menuItems, isLoading: false, error: null });
+            const url = categoryId
+                ? `/menu/item?page=${page}&limit=${limit}&category=${categoryId}`
+                : `/menu/item?page=${page}&limit=${limit}`;
+            const response = await axiosInstance.get(url);
+            set({
+                menu: response.data.menuItems,
+                paginationMenu: response.data.pagination,
+                isLoading: false,
+                error: null
+            });
         } catch (error) {
             console.error("Error fetching menu items:", error);
             set({

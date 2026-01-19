@@ -4,9 +4,15 @@ const Order = require("../models/order.model");
 // Get all clients with summary statistics
 exports.getAllClients = async (req, res) => {
     try {
+        const { page = 1, limit = 10 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const totalClients = await Client.countDocuments();
         const clients = await Client.find()
             .select("name email phone totalSpent lastVisit orders")
-            .sort({ lastVisit: -1 });
+            .sort({ lastVisit: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
 
         const clientData = clients.map(client => ({
             ...client._doc,
@@ -15,7 +21,13 @@ exports.getAllClients = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            clients: clientData
+            clients: clientData,
+            pagination: {
+                totalClients,
+                totalPages: Math.ceil(totalClients / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
         });
     } catch (error) {
         res.status(500).json({
