@@ -1,4 +1,5 @@
 const { Category, MenuItem } = require("../models/menu.model");
+const redisClient = require("../redis/redisClient");
 const cloudinary = require("../config/cloudinary/cloudinary");
 const fs = require('fs');
 
@@ -36,8 +37,13 @@ const createCategory = async (req, res) => {
             image = uploadResponse.secure_url;
         }
 
-        const newCategory = await Category.create({ name, description, image });
-        res.status(201).json({ success: true, message: "Category created", category: newCategory });
+        const category = new Category({ name, description, image });
+        const savedCategory = await category.save();
+
+        // Invalidate cache
+        redisClient.delByPattern('cache:/api/menu/category*');
+
+        res.status(201).json({ success: true, category: savedCategory });
     } catch (error) {
         console.error("Error creating category:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -46,8 +52,24 @@ const createCategory = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
     try {
-        const categories = await Category.find();
-        res.status(200).json({ success: true, categories });
+        const { page = 1, limit = 10 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const totalCategories = await Category.countDocuments();
+        const categories = await Category.find()
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        res.status(200).json({
+            success: true,
+            categories,
+            pagination: {
+                totalCategories,
+                totalPages: Math.ceil(totalCategories / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -65,6 +87,7 @@ const getCategoryById = async (req, res) => {
 
 const updateCategory = async (req, res) => {
     try {
+        const { id } = req.params;
         const { name, description, status } = req.body;
         let updateData = { name, description, status };
 
@@ -81,9 +104,13 @@ const updateCategory = async (req, res) => {
             updateData.image = uploadResponse.secure_url;
         }
 
-        const category = await Category.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        if (!category) return res.status(404).json({ success: false, message: "Category not found" });
-        res.status(200).json({ success: true, message: "Category updated", category });
+        const updatedCategory = await Category.findByIdAndUpdate(id, updateData, { new: true });
+        if (!updatedCategory) return res.status(404).json({ success: false, message: "Category not found" });
+
+        // Invalidate cache
+        redisClient.delByPattern('cache:/api/menu/category*');
+
+        res.status(200).json({ success: true, message: "Category updated", category: updatedCategory });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -91,15 +118,19 @@ const updateCategory = async (req, res) => {
 
 const deleteCategory = async (req, res) => {
     try {
-        const categoryId = req.params.id;
+        const id = req.params.id;
         // Optional: Check if items exist in this category before deleting
-        const items = await MenuItem.find({ category: categoryId });
+        const items = await MenuItem.find({ category: id });
         if (items.length > 0) {
             return res.status(400).json({ success: false, message: "Cannot delete category with associated items. Please delete or reassign items first." });
         }
 
-        const category = await Category.findByIdAndDelete(categoryId);
+        const category = await Category.findByIdAndDelete(id);
         if (!category) return res.status(404).json({ success: false, message: "Category not found" });
+
+        // Invalidate cache
+        redisClient.delByPattern('cache:/api/menu/category*');
+
         res.status(200).json({ success: true, message: "Category deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -140,10 +171,15 @@ const createMenuItem = async (req, res) => {
             image = uploadResponse.secure_url;
         }
 
-        const menuItem = await MenuItem.create({
+        const menuItem = new MenuItem({
             name, description, price, category, image, isAvailable, isVeg, spiceLevel, preparationTime, variants, taxes
         });
-        res.status(201).json({ success: true, message: "Menu item created", menuItem });
+        const savedItem = await menuItem.save();
+
+        // Invalidate cache
+        redisClient.delByPattern('cache:/api/menu/item*');
+
+        res.status(201).json({ success: true, menuItem: savedItem });
     } catch (error) {
         console.error("Error creating menu item:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -152,13 +188,29 @@ const createMenuItem = async (req, res) => {
 
 const getAllMenuItems = async (req, res) => {
     try {
-        const { category } = req.query;
+        const { category, page = 1, limit = 10 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
         let query = {};
         if (category) {
             query.category = category;
         }
-        const menuItems = await MenuItem.find(query).populate('category', 'name');
-        res.status(200).json({ success: true, menuItems });
+
+        const totalItems = await MenuItem.countDocuments(query);
+        const menuItems = await MenuItem.find(query)
+            .populate('category', 'name')
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        res.status(200).json({
+            success: true,
+            menuItems,
+            pagination: {
+                totalItems,
+                totalPages: Math.ceil(totalItems / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -176,6 +228,7 @@ const getMenuItemById = async (req, res) => {
 
 const updateMenuItem = async (req, res) => {
     try {
+        const { id } = req.params;
         let updateData = { ...req.body };
 
         if (updateData.variants && typeof updateData.variants === 'string') {
@@ -199,9 +252,13 @@ const updateMenuItem = async (req, res) => {
             updateData.image = uploadResponse.secure_url;
         }
 
-        const menuItem = await MenuItem.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        if (!menuItem) return res.status(404).json({ success: false, message: "Menu item not found" });
-        res.status(200).json({ success: true, message: "Menu item updated", menuItem });
+        const updatedItem = await MenuItem.findByIdAndUpdate(id, updateData, { new: true });
+        if (!updatedItem) return res.status(404).json({ success: false, message: "Menu item not found" });
+
+        // Invalidate cache
+        redisClient.delByPattern('cache:/api/menu/item*');
+
+        res.status(200).json({ success: true, message: "Menu item updated", menuItem: updatedItem });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -209,8 +266,13 @@ const updateMenuItem = async (req, res) => {
 
 const deleteMenuItem = async (req, res) => {
     try {
-        const menuItem = await MenuItem.findByIdAndDelete(req.params.id);
+        const id = req.params.id;
+        const menuItem = await MenuItem.findByIdAndDelete(id);
         if (!menuItem) return res.status(404).json({ success: false, message: "Menu item not found" });
+
+        // Invalidate cache
+        redisClient.delByPattern('cache:/api/menu/item*');
+
         res.status(200).json({ success: true, message: "Menu item deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

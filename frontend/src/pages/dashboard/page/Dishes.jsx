@@ -9,9 +9,10 @@ import OrderTableView from '../components/OrderTableView';
 import OrderSummarySidebar from '../components/OrderSummarySidebar';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Pagination from '@/components/ui/custom-pagination';
 
 const Dishes = () => {
-    const { recentOrders, getAllOrders, updateOrderStatus, isLoading } = useOrderStore();
+    const { recentOrders, getAllOrders, updateOrderStatus, isLoading, pagination } = useOrderStore();
     const [viewMode, setViewMode] = useState('card'); // 'card' | 'table'
     const [filter, setFilter] = useState("All");
     const [searchTerm, setSearchTerm] = useState("");
@@ -19,9 +20,14 @@ const Dishes = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
-        getAllOrders();
+        getAllOrders(1, 10);
         const timer = setInterval(() => setCurrentTime(new Date()), 30000);
-        const poll = setInterval(() => getAllOrders(), 15000);
+        const poll = setInterval(() => {
+            // Only poll for the first page to see new orders
+            // If the user is on a different page, polling might be disruptive
+            // For now, let's keep it simple.
+            getAllOrders(pagination?.currentPage || 1, 10);
+        }, 15000);
         return () => {
             clearInterval(timer);
             clearInterval(poll);
@@ -53,6 +59,10 @@ const Dishes = () => {
             return matchesSearch && matchesFilter;
         });
     }, [recentOrders, searchTerm, filter]);
+
+    const handlePageChange = (newPage) => {
+        getAllOrders(newPage, 10);
+    };
 
     const stats = useMemo(() => ({
         total: recentOrders.length,
@@ -130,19 +140,25 @@ const Dishes = () => {
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                                 >
-                                    {viewMode === 'card' ? (
-                                        <OrderCardView
-                                            orders={filteredOrders}
-                                            selectedOrderId={selectedOrder?._id}
-                                            onSelectOrder={setSelectedOrder}
+                                    <div className="space-y-6">
+                                        {viewMode === 'card' ? (
+                                            <OrderCardView
+                                                orders={filteredOrders}
+                                                selectedOrderId={selectedOrder?._id}
+                                                onSelectOrder={setSelectedOrder}
+                                            />
+                                        ) : (
+                                            <OrderTableView
+                                                orders={filteredOrders}
+                                                selectedOrderId={selectedOrder?._id}
+                                                onSelectOrder={setSelectedOrder}
+                                            />
+                                        )}
+                                        <Pagination
+                                            pagination={pagination}
+                                            onPageChange={handlePageChange}
                                         />
-                                    ) : (
-                                        <OrderTableView
-                                            orders={filteredOrders}
-                                            selectedOrderId={selectedOrder?._id}
-                                            onSelectOrder={setSelectedOrder}
-                                        />
-                                    )}
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>

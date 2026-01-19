@@ -15,6 +15,7 @@ import {
     ArrowUpDown,
     CheckCircle2
 } from 'lucide-react';
+import Pagination from '@/components/ui/custom-pagination';
 import {
     Card,
     CardContent,
@@ -48,12 +49,13 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { motion } from 'framer-motion';
 
 const Inventory = () => {
-    const { items, stats, isLoading, fetchInventory, fetchReports, addStockItem, updateStockItem, deleteStockItem } = useInventoryStore();
+    const { items, stats, isLoading, fetchInventory, fetchReports, addStockItem, updateStockItem, deleteStockItem, pagination } = useInventoryStore();
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -71,9 +73,13 @@ const Inventory = () => {
     });
 
     useEffect(() => {
-        fetchInventory();
+        fetchInventory(1, 10);
         fetchReports();
     }, [fetchInventory, fetchReports]);
+
+    const handlePageChange = (newPage) => {
+        fetchInventory(newPage, 10);
+    };
 
     const filteredItems = useMemo(() => {
         return items.filter(item => {
@@ -427,7 +433,7 @@ const Inventory = () => {
             </div>
 
             {/* Data Table */}
-            <div className="bg-white dark:bg-[#16191C]  rounded-md shadow-md border border-gray-200  dark:border-teal-800 overflow-hidden">
+            <div className="bg-white dark:bg-[#16191C] rounded-md shadow-md border border-gray-200 dark:border-teal-800 overflow-hidden">
                 <Table>
                     <TableHeader className="bg-teal-600 dark:bg-teal-900/90">
                         <TableRow className="h-16 border-b border-gray-100 dark:border-gray-800">
@@ -505,6 +511,13 @@ const Inventory = () => {
                         </AnimatePresence>
                     </TableBody>
                 </Table>
+
+                <div className="p-4 border-t bg-gray-50/10 dark:bg-gray-800/5">
+                    <Pagination
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                    />
+                </div>
 
                 {filteredItems.length === 0 && !isLoading && (
                     <div className="py-20 flex flex-col items-center justify-center space-y-4">

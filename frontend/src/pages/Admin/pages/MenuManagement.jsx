@@ -5,10 +5,11 @@ import { Hamburger, Minus, Plus, Loader2, Utensils, ChevronLeft, ChevronRight } 
 import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import { useMenuStore } from '@/store/useMenuStore'
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Pagination from '@/components/ui/custom-pagination'
+
 
 const MenuMangement = () => {
-    const { menu, category, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();
+    const { menu, category, getAllMenuItems, getAllCategories, isLoading, paginationMenu } = useMenuStore();
     const [activeCategory, setActiveCategory] = useState("All");
 
     const scrollRef = React.useRef(null);
@@ -27,8 +28,12 @@ const MenuMangement = () => {
 
     useEffect(() => {
         getAllCategories();
-        getAllMenuItems();
+        getAllMenuItems(1, 12); // Slightly more items for management grid
     }, [getAllCategories, getAllMenuItems]);
+
+    const handlePageChange = (newPage) => {
+        getAllMenuItems(newPage, 12);
+    };
 
     // Filter menu items based on active category
     const filteredMenu = activeCategory === "All"
@@ -151,13 +156,9 @@ const MenuMangement = () => {
                     <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-20 mt-12">
-                    {filteredMenu.length === 0 ? (
-                        <div className="col-span-full text-center py-20 text-gray-500">
-                            No menu items found in this category.
-                        </div>
-                    ) : (
-                        filteredMenu.map((dish) => {
+                <div className="col-span-full space-y-8 pb-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-20 mt-12">
+                        {filteredMenu.map((dish) => {
                             return (
                                 <Card
                                     key={dish._id}
@@ -220,8 +221,12 @@ const MenuMangement = () => {
                                     </div>
                                 </Card>
                             )
-                        })
-                    )}
+                        })}
+                    </div>
+                    <Pagination
+                        pagination={paginationMenu}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
             )}
         </div>

@@ -9,12 +9,22 @@ export const useInventoryStore = create((set, get) => ({
     stats: null,
     isLoading: false,
     error: null,
+    pagination: {
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 1,
+        limit: 10
+    },
 
-    fetchInventory: async () => {
+    fetchInventory: async (page = 1, limit = 10) => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_URL}/inventory`);
-            set({ items: response.data.data, isLoading: false });
+            const response = await axios.get(`${API_URL}/inventory?page=${page}&limit=${limit}`);
+            set({
+                items: response.data.data,
+                pagination: response.data.pagination,
+                isLoading: false
+            });
         } catch (error) {
             set({ error: error.response?.data?.message || "Error fetching inventory", isLoading: false });
             toast.error(get().error);

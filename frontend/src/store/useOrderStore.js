@@ -3,11 +3,17 @@ import axiosInstance from "../axios/axiosInstace";
 
 export const useOrderStore = create((set, get) => ({
     cart: [],
-    isLoading: true,
+    isLoading: false,
     error: null,
     lastOrder: null, // For billing slip
     stats: null,
     recentOrders: [],
+    pagination: {
+        totalOrders: 0,
+        totalPages: 0,
+        currentPage: 1,
+        limit: 10
+    },
 
     addToCart: (menuItem) => {
         const { cart } = get();
@@ -64,11 +70,15 @@ export const useOrderStore = create((set, get) => ({
         }
     },
 
-    getAllOrders: async () => {
+    getAllOrders: async (page = 1, limit = 10) => {
         set({ isLoading: true });
         try {
-            const response = await axiosInstance.get("/orders");
-            set({ recentOrders: response.data.orders, isLoading: false });
+            const response = await axiosInstance.get(`/orders?page=${page}&limit=${limit}`);
+            set({
+                recentOrders: response.data.orders,
+                pagination: response.data.pagination,
+                isLoading: false
+            });
         } catch (error) {
             console.error("Get orders error:", error);
             set({ isLoading: false, error: "Failed to fetch orders" });
