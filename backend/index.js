@@ -26,7 +26,9 @@ app.use(express.json());
 const allowedOrigins = [
     "http://localhost:5173",
     "https://tastystation.vercel.app",
-    "https://www.tastystation.vercel.app"
+    "tastystation.vercel.app",
+    "https://www.tastystation.vercel.app",
+    "www.tastystation.vercel.app"
 ];
 
 app.use(cors({
@@ -45,7 +47,7 @@ app.use(cors({
 }));
 
 // Enable pre-flight requests for all routes
-app.options('*', cors());
+app.options(/.*/, cors());
 app.use(cookieParser());
 
 app.use('/api/users', userRouter);
