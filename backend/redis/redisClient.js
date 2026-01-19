@@ -5,7 +5,15 @@ const redisClient = createClient({
     password: process.env.REDIS_PASSWORD,
     socket: {
         host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT
+        port: process.env.REDIS_PORT,
+        connectTimeout: 10000, // 10 seconds timeout
+        reconnectStrategy: (retries) => {
+            if (retries > 5) {
+                console.error('❌ Redis: Max retries exhausted. Stopping reconnection attempts.');
+                return new Error('Redis Max Retries Exhausted');
+            }
+            return Math.min(retries * 100, 3000); // Backoff strategy
+        }
     }
 });
 
