@@ -1,7 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+import axiosInstance from "../axios/axiosInstace";
 
 const useReportStore = create((set) => ({
     salesData: [],
@@ -14,7 +12,7 @@ const useReportStore = create((set) => ({
     fetchSalesReports: async (filter = "daily") => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_BASE_URL}/reports/sales?filter=${filter}`, { withCredentials: true });
+            const response = await axiosInstance.get(`/reports/sales?filter=${filter}`);
             set({ salesData: response.data.data, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -24,7 +22,7 @@ const useReportStore = create((set) => ({
     fetchCashierCollections: async (filter = "daily") => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_BASE_URL}/reports/cashier-collections?filter=${filter}`, { withCredentials: true });
+            const response = await axiosInstance.get(`/reports/cashier-collections?filter=${filter}`);
             set({ cashierData: response.data.data, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -34,7 +32,7 @@ const useReportStore = create((set) => ({
     fetchTopSellingItems: async (filter = "daily", limit = 10) => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_BASE_URL}/reports/top-selling?filter=${filter}&limit=${limit}`, { withCredentials: true });
+            const response = await axiosInstance.get(`/reports/top-selling?filter=${filter}&limit=${limit}`);
             set({ topItemsData: response.data.data, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -44,7 +42,7 @@ const useReportStore = create((set) => ({
     fetchProfitLoss: async (filter = "monthly") => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_BASE_URL}/reports/profit-loss?filter=${filter}`, { withCredentials: true });
+            const response = await axiosInstance.get(`/reports/profit-loss?filter=${filter}`);
             set({ profitLossData: response.data.data, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });

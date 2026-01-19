@@ -1,8 +1,6 @@
 import { create } from "zustand";
-import axios from "axios";
+import axiosInstance from "../axios/axiosInstace";
 import { toast } from "sonner"
-
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:3000/api" : "/api";
 
 export const useInventoryStore = create((set, get) => ({
     items: [],
@@ -19,7 +17,7 @@ export const useInventoryStore = create((set, get) => ({
     fetchInventory: async (page = 1, limit = 10) => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_URL}/inventory?page=${page}&limit=${limit}`);
+            const response = await axiosInstance.get(`/inventory?page=${page}&limit=${limit}`);
             set({
                 items: response.data.data,
                 pagination: response.data.pagination,
@@ -34,7 +32,7 @@ export const useInventoryStore = create((set, get) => ({
     fetchReports: async () => {
         set({ isLoading: true });
         try {
-            const response = await axios.get(`${API_URL}/inventory/reports`);
+            const response = await axiosInstance.get(`/inventory/reports`);
             set({ stats: response.data.data, isLoading: false });
         } catch (error) {
             set({ error: error.response?.data?.message || "Error fetching reports", isLoading: false });
@@ -45,7 +43,7 @@ export const useInventoryStore = create((set, get) => ({
     addStockItem: async (itemData) => {
         set({ isLoading: true });
         try {
-            const response = await axios.post(`${API_URL}/inventory`, itemData);
+            const response = await axiosInstance.post(`/inventory`, itemData);
             set((state) => ({
                 items: [response.data.data, ...state.items],
                 isLoading: false
@@ -60,7 +58,7 @@ export const useInventoryStore = create((set, get) => ({
 
     updateStockItem: async (id, updateData) => {
         try {
-            const response = await axios.put(`${API_URL}/inventory/${id}`, updateData);
+            const response = await axiosInstance.put(`/inventory/${id}`, updateData);
             set((state) => ({
                 items: state.items.map((item) => (item._id === id ? response.data.data : item)),
             }));
@@ -73,7 +71,7 @@ export const useInventoryStore = create((set, get) => ({
 
     deleteStockItem: async (id) => {
         try {
-            await axios.delete(`${API_URL}/inventory/${id}`);
+            await axiosInstance.delete(`/inventory/${id}`);
             set((state) => ({
                 items: state.items.filter((item) => item._id !== id),
             }));
