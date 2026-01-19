@@ -23,10 +23,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-const allowedOrigins = ["http://localhost:5173", "https://tastystation.vercel.app"];
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://tastystation.vercel.app",
+    "https://www.tastystation.vercel.app"
+];
 
 app.use(cors({
-    credentials: true,
     origin: function (origin, callback) {
         // allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
@@ -35,8 +38,14 @@ app.use(cors({
             return callback(new Error(msg), false);
         }
         return callback(null, true);
-    }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Enable pre-flight requests for all routes
+app.options('*', cors());
 app.use(cookieParser());
 
 app.use('/api/users', userRouter);
