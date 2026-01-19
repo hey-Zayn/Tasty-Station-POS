@@ -17,6 +17,7 @@ const inventoryRouter = require("./routers/inventory.router");
 const reportRouter = require("./routers/report.router");
 const clientRouter = require("./routers/client.router");
 const dashboardRouter = require("./routers/dashboard.router");
+const redisTestRouter = require("./routers/redis.test.router");
 
 
 const app = express();
@@ -60,6 +61,7 @@ app.use('/api/inventory', inventoryRouter);
 app.use('/api/reports', reportRouter);
 app.use('/api/clients', clientRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api', redisTestRouter);
 
 
 connectDB();
