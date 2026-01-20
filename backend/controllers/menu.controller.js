@@ -17,6 +17,8 @@ const deleteTempFile = (path) => {
 
 const createCategory = async (req, res) => {
     try {
+        // console.log("createCategory req.body:", req.body);
+        // console.log("createCategory req.file:", req.file);
         const { name, description } = req.body;
 
         const existingCategory = await Category.findOne({ name });
@@ -141,6 +143,8 @@ const deleteCategory = async (req, res) => {
 
 const createMenuItem = async (req, res) => {
     try {
+        console.log("createMenuItem req.body:", req.body);
+        console.log("createMenuItem req.file:", req.file);
         let { name, description, price, category, isAvailable, isVeg, spiceLevel, preparationTime, variants, taxes } = req.body;
 
         // Parse variants if sent as string (Multipart/Form-Data)

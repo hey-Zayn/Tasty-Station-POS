@@ -46,19 +46,19 @@ redisClient.delByPattern = async (pattern) => {
     if (!redisClient.isOpen) return;
 
     try {
-        let cursor = 0;
+        let cursor = '0'; // Start with string '0'
         do {
             const reply = await redisClient.scan(cursor, {
                 MATCH: pattern,
                 COUNT: 100
             });
-            cursor = reply.cursor;
+            cursor = String(reply.cursor); // Convert to string
             const keys = reply.keys;
 
             if (keys.length > 0) {
                 await redisClient.del(keys);
             }
-        } while (cursor !== 0);
+        } while (cursor !== '0'); // Compare with string '0'
     } catch (err) {
         console.error(`❌ Redis delByPattern Error (${pattern}):`, err);
     }
