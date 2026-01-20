@@ -23,6 +23,7 @@ const redisTestRouter = require("./routers/redis.test.router");
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
 app.use(express.json());
 const allowedOrigins = [
     "http://localhost:5173",

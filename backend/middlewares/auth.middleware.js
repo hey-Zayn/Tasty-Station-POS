@@ -5,6 +5,7 @@ const protectedRoute = async (req, res, next) => {
     try {
         const token = req.cookies.token;
         if (!token) {
+            console.log("Auth Middleware: No Token Provided");
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized - No Token Provided"
@@ -12,6 +13,7 @@ const protectedRoute = async (req, res, next) => {
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if (!decoded) {
+            console.log("Auth Middleware: Invalid Token");
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized - Invalid Token"
@@ -19,6 +21,7 @@ const protectedRoute = async (req, res, next) => {
         }
         const user = await User.findById(decoded.userId).select('-password');
         if (!user) {
+            console.log("Auth Middleware: User Not Found for ID:", decoded.userId);
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized - User Not Found"
@@ -27,6 +30,7 @@ const protectedRoute = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
+        console.log("Auth Middleware: Error Verifying Token:", error.message);
         return res.status(401).json({
             success: false,
             message: "Unauthorized - Error Verifying Token"
