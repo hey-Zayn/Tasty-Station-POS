@@ -63,6 +63,8 @@ app.use('/api/reports', reportRouter);
 app.use('/api/clients', clientRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api', redisTestRouter);
+const chatRouter = require("./routers/chat.router");
+app.use('/api/chat', chatRouter);
 
 
 connectDB();
