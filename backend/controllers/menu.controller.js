@@ -1,24 +1,11 @@
 const { Category, MenuItem } = require("../models/menu.model");
 const redisClient = require("../redis/redisClient");
 const cloudinary = require("../config/cloudinary/cloudinary");
-const fs = require('fs');
-
-// Helper to delete temporary file
-const deleteTempFile = (path) => {
-    setTimeout(() => {
-        fs.unlink(path, (err) => {
-            if (err) console.error("Error deleting temp file:", err);
-            else console.log("Temp file deleted:", path);
-        });
-    }, 30000); // 30 seconds delay
-};
 
 // --- Category Controllers ---
 
 const createCategory = async (req, res) => {
     try {
-        // console.log("createCategory req.body:", req.body);
-        // console.log("createCategory req.file:", req.file);
         const { name, description } = req.body;
 
         const existingCategory = await Category.findOne({ name });
@@ -26,13 +13,7 @@ const createCategory = async (req, res) => {
 
         let image = "";
 
-        if (req.file) {
-            const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
-                folder: "pos_menu_categories"
-            });
-            image = uploadResponse.secure_url;
-            deleteTempFile(req.file.path);
-        } else if (req.body.image && typeof req.body.image === 'string') {
+        if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_categories"
             });
@@ -93,13 +74,7 @@ const updateCategory = async (req, res) => {
         const { name, description, status } = req.body;
         let updateData = { name, description, status };
 
-        if (req.file) {
-            const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
-                folder: "pos_menu_categories"
-            });
-            updateData.image = uploadResponse.secure_url;
-            deleteTempFile(req.file.path);
-        } else if (req.body.image && typeof req.body.image === 'string') {
+        if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_categories"
             });
@@ -121,7 +96,6 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         const id = req.params.id;
-        // Optional: Check if items exist in this category before deleting
         const items = await MenuItem.find({ category: id });
         if (items.length > 0) {
             return res.status(400).json({ success: false, message: "Cannot delete category with associated items. Please delete or reassign items first." });
@@ -143,11 +117,8 @@ const deleteCategory = async (req, res) => {
 
 const createMenuItem = async (req, res) => {
     try {
-        console.log("createMenuItem req.body:", req.body);
-        console.log("createMenuItem req.file:", req.file);
         let { name, description, price, category, isAvailable, isVeg, spiceLevel, preparationTime, variants, taxes } = req.body;
 
-        // Parse variants if sent as string (Multipart/Form-Data)
         if (typeof variants === 'string') {
             try {
                 variants = JSON.parse(variants);
@@ -160,15 +131,8 @@ const createMenuItem = async (req, res) => {
         const existingItem = await MenuItem.findOne({ name });
         if (existingItem) return res.status(400).json({ success: false, message: "Item already exists" });
 
-
         let image = "";
-        if (req.file) {
-            const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
-                folder: "pos_menu_items"
-            });
-            image = uploadResponse.secure_url;
-            deleteTempFile(req.file.path);
-        } else if (req.body.image && typeof req.body.image === 'string') {
+        if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_items"
             });
@@ -243,13 +207,7 @@ const updateMenuItem = async (req, res) => {
             }
         }
 
-        if (req.file) {
-            const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
-                folder: "pos_menu_items"
-            });
-            updateData.image = uploadResponse.secure_url;
-            deleteTempFile(req.file.path);
-        } else if (req.body.image && typeof req.body.image === 'string') {
+        if (req.body.image && typeof req.body.image === 'string') {
             const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
                 folder: "pos_menu_items"
             });

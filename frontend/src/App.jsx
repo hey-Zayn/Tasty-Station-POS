@@ -24,6 +24,7 @@ import StaffManagement from './pages/Admin/pages/StaffManagement'
 import CustomerHistory from './pages/Admin/pages/CustomerHistory'
 import AdminDashboard from './pages/Admin/pages/AdminDashboard'
 import KitchenDashboard from './pages/dashboard/page/KitchenDashboard'
+import ChatWidget from './components/chat/ChatWidget';
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -50,48 +51,53 @@ const App = () => {
 
   // console.log(authUser)
 
+  // console.log(authUser)
+
   if (isCheckingAuth) {
     return <div className='w-full h-screen flex justify-center items-center'><Loader className="animate-spin size-20 text-cyan-500" /></div>
   }
   return (
-    <Routes>
+    <>
+      <Routes>
 
-      <Route
-        path="/login"
-        element={!authUser ? <Login /> : <Navigate to={authUser.role === 'admin' ? "/admin" : "/"} />}
-      />
-      <Route
-        path="/signup"
-        element={!authUser ? <Signup /> : <Navigate to={authUser.role === 'admin' ? "/admin" : "/"} />}
-      />
+        <Route
+          path="/login"
+          element={!authUser ? <Login /> : <Navigate to={authUser.role === 'admin' ? "/admin" : "/"} />}
+        />
+        <Route
+          path="/signup"
+          element={!authUser ? <Signup /> : <Navigate to={authUser.role === 'admin' ? "/admin" : "/"} />}
+        />
 
 
-      <Route path="/" element={authUser ? <Dashboard /> : <Navigate to="/login" />} >
-        <Route index element={
-          authUser?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="dashboard" />
-        } />
-        <Route path="dashboard" element={<DashboardHome />} />
-        <Route path="orders" element={<OrderPage />} />
-        <Route path="tables" element={<ManageTables />} />
-        <Route path="inventory" element={<Inventory />} />
-        <Route path="dishes" element={<Dishes />} />
-        <Route path="customers" element={<Customer />} />
-        <Route path="kitchen" element={<KitchenDashboard />} />
-      </Route>
+        <Route path="/" element={authUser ? <Dashboard /> : <Navigate to="/login" />} >
+          <Route index element={
+            authUser?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="dashboard" />
+          } />
+          <Route path="dashboard" element={<DashboardHome />} />
+          <Route path="orders" element={<OrderPage />} />
+          <Route path="tables" element={<ManageTables />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="dishes" element={<Dishes />} />
+          <Route path="customers" element={<Customer />} />
+          <Route path="kitchen" element={<KitchenDashboard />} />
+        </Route>
 
-      <Route path='/admin' element={authUser && authUser.role === 'admin' ? <AdminLayout /> : <Navigate to={authUser ? "/" : "/login"} />} >
-        <Route index element={<AdminDashboard />} />
-        <Route path="/admin/menu" element={<MenuMangement />} />
-        <Route path="/admin/add-category" element={<AddCategory />} />
-        <Route path="/admin/add-menu" element={<AddMenu />} />
-        <Route path="/admin/tables" element={<AdminTables />} />
-        <Route path="/admin/inventory" element={<ManageInventory />} />
-        <Route path="/admin/reports" element={<AdminReports />} />
-        <Route path="/admin/staff" element={<StaffManagement />} />
-        <Route path="/admin/customer-history" element={<CustomerHistory />} />
-      </Route>
+        <Route path='/admin' element={authUser && authUser.role === 'admin' ? <AdminLayout /> : <Navigate to={authUser ? "/" : "/login"} />} >
+          <Route index element={<AdminDashboard />} />
+          <Route path="/admin/menu" element={<MenuMangement />} />
+          <Route path="/admin/add-category" element={<AddCategory />} />
+          <Route path="/admin/add-menu" element={<AddMenu />} />
+          <Route path="/admin/tables" element={<AdminTables />} />
+          <Route path="/admin/inventory" element={<ManageInventory />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/staff" element={<StaffManagement />} />
+          <Route path="/admin/customer-history" element={<CustomerHistory />} />
+        </Route>
 
-    </Routes>
+      </Routes>
+      {authUser && <ChatWidget />}
+    </>
   )
 }
 
