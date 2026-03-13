@@ -44,11 +44,11 @@ const StaffManagement = () => {
 
     useEffect(() => {
         fetchStaff();
-    }, []);
+    }, [fetchStaff]);
 
     useEffect(() => {
         if (editingStaff) {
-            setFormData({
+            setFormData({ // eslint-disable-line react-hooks/set-state-in-effect
                 name: editingStaff.name || "",
                 email: editingStaff.email || "",
                 password: "", // Don't show password
