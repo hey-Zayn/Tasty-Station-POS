@@ -52,6 +52,7 @@ import {
 import { AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { motion } from 'framer-motion';
 
 const Inventory = () => {
     const { items, stats, isLoading, fetchInventory, fetchReports, addStockItem, updateStockItem, deleteStockItem, pagination } = useInventoryStore();
@@ -307,12 +308,12 @@ const Inventory = () => {
                                 <div className={cn(
                                     "absolute bottom-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity",
                                     stat.alert
-                                        ? "bg-linear-to-r from-amber-400 to-amber-600"
+                                        ? "bg-gradient-to-r from-amber-400 to-amber-600"
                                         : stat.color === "text-blue-600"
-                                            ? "bg-linear-to-r from-blue-400 to-blue-600"
+                                            ? "bg-gradient-to-r from-blue-400 to-blue-600"
                                             : stat.color === "text-emerald-600"
-                                                ? "bg-linear-to-r from-emerald-400 to-emerald-600"
-                                                : "bg-linear-to-r from-purple-400 to-purple-600"
+                                                ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
+                                                : "bg-gradient-to-r from-purple-400 to-purple-600"
                                 )} />
                             </CardContent>
                         </Card>

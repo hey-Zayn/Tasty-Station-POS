@@ -105,58 +105,35 @@ This application uses a robust, scalable architecture ensuring reliability and s
 
 ---
 
-## 🏗️ Monorepo Structure
-
-This project is organized as a monorepo for better developer experience and deployment orchestration:
-- `/backend`: Node.js/Express API.
-- `/frontend`: Vite/React application.
-- `/`: Root configuration for CI/CD and orchestration.
-
----
-
 ## 🛠️ Setup & Installation
 
-To run this project locally, you no longer need to manage multiple terminals manually:
+To run this project locally:
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/hey-Zayn/POS.git
     cd POS
     ```
 
-2.  **One-Command Install:**
-    ```bash
-    npm run install:all
-    ```
+2.  **Backend Setup:**
 
-3.  **One-Command Development:**
     ```bash
-    # Starts BOTH Backend (3000) and Frontend (5173) simultaneously
+    cd backend
+    npm install
+    # Create .env file with MONGO_URI, REDIS_URL, CLOUDINARY credentials
     npm run dev
     ```
 
-> [!NOTE]
-> Make sure to copy `backend/.env.example` to `backend/.env` and fill in your credentials before starting.
+3.  **Frontend Setup:**
 
----
+    ```bash
+    cd frontend
+    npm install
+    npm run dev
+    ```
 
-## 🚀 CI/CD Pipeline (Professional DevOps)
-
-This project implements a production-grade CI/CD pipeline using **GitHub Actions** and **Vercel**:
-
-### **1. Continuous Integration (CI)**
-Runs on every Push and Pull Request to `main` or `develop`:
-- **Linting**: Auto-scans frontend code for quality and style errors.
-- **Build Validation**: Ensures the Vite project builds successfully.
-- **Backend Check**: Scans all Node.js files for syntax health.
-
-### **2. Continuous Deployment (CD)**
-- **Preview Deployments**: Every PR automatically generates a unique Vercel preview URL (posted as a PR comment).
-- **Production Deployment**: Merging to `main` triggers an automatic deployment to the live URL.
-
----
-
-## ✅ Access App
-Open `http://localhost:5173` in your browser.
+4.  **Access App:**
+    Open `http://localhost:5173` in your browser.
 
 ---

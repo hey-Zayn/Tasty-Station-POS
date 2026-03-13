@@ -48,7 +48,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 

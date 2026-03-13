@@ -7,8 +7,7 @@ import { Clock, User, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from "@/lib/utils";
 
-const KitchenOrderCard = ({ order, onUpdate, nextStatus, actionLabel, actionIcon }) => {
-    const IconComponent = actionIcon;
+const KitchenOrderCard = ({ order, onUpdate, nextStatus, actionLabel, actionIcon: ActionIcon }) => {
     return (
         <Card className="group overflow-hidden border-gray-100 dark:border-gray-800 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 shadow-sm hover:shadow-md rounded-2xl bg-white dark:bg-[#1A1C1E]">
             <CardHeader className="p-4 space-y-3">
@@ -68,7 +67,7 @@ const KitchenOrderCard = ({ order, onUpdate, nextStatus, actionLabel, actionIcon
                         onClick={() => onUpdate(order._id, nextStatus)}
                         className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold uppercase tracking-widest text-[10px] h-11 rounded-xl shadow-lg shadow-teal-600/10 flex items-center justify-center gap-2 transition-all active:scale-95"
                     >
-                        <IconComponent className="size-3.5" />
+                        <ActionIcon className="size-3.5" />
                         {actionLabel}
                     </Button>
                 </div>

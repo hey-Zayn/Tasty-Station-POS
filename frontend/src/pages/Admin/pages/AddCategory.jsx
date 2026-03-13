@@ -50,7 +50,7 @@ const AddCategory = () => {
     // Reset form when dialog closes
     useEffect(() => {
         if (!isDialogOpen) {
-            setFormData({ name: "", description: "", image: null }); // eslint-disable-line react-hooks/set-state-in-effect
+            setFormData({ name: "", description: "", image: null });
             setFileName("");
             setImagePreview(null);
             setEditingId(null);

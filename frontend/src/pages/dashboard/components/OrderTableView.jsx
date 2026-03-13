@@ -22,7 +22,6 @@ import {
     MapPin,
     Package
 } from 'lucide-react';
-/* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
 import { formatDistanceToNow, format } from 'date-fns';
 import { cn } from '@/lib/utils';

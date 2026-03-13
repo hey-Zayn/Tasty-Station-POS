@@ -44,7 +44,7 @@ const OrderPage = () => {
 
     useEffect(() => {
         if (lastOrder) {
-            setReceiptMetadata({ // eslint-disable-line react-hooks/set-state-in-effect
+            setReceiptMetadata({
                 cardLastFour: (Math.floor(Math.random() * 9000) + 1000).toString(),
                 authCode: (Math.random().toString(36).substring(2, 8)).toUpperCase()
             });
@@ -126,7 +126,7 @@ const OrderPage = () => {
                                         key={cat._id}
                                         onClick={() => handleCategoryChange(cat._id)}
                                         className={cn(
-                                            "px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors shrink-0",
+                                            "px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0",
                                             selectedCategoryId === cat._id
                                                 ? "bg-primary text-primary-foreground shadow-sm"
                                                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
