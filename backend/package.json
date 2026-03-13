@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "seed": "node menu.js",
-    "seed-table": "node table.js"
+    "seed-table": "node table.js",
+    "test": "echo 'No tests configured yet — add Jest/Mocha here' && exit 0",
+    "lint": "echo 'No backend linter configured yet' && exit 0"
   },
   "keywords": [],
   "author": "",

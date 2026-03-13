@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
 import useChatStore from '../../store/useChatStore';
 

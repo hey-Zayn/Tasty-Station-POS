@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import useKitchenStore from '@/store/useKitchenStore';
 import { Flame, Timer, CheckCircle2, ChevronRight } from 'lucide-react';
 
@@ -8,19 +8,15 @@ import KitchenColumn from '../components/kitchen/KitchenColumn';
 
 const KitchenDashboard = () => {
     const { kitchenOrders, fetchKitchenOrders, updateStatus } = useKitchenStore();
-    const [isRefreshing, setIsRefreshing] = useState(false);
+    const handleRefresh = React.useCallback(async () => {
+        await fetchKitchenOrders();
+    }, [fetchKitchenOrders]);
 
     useEffect(() => {
         handleRefresh();
         const interval = setInterval(fetchKitchenOrders, 15000); // Live sync every 15s
         return () => clearInterval(interval);
-    }, []);
-
-    const handleRefresh = async () => {
-        setIsRefreshing(true);
-        await fetchKitchenOrders();
-        setIsRefreshing(false);
-    };
+    }, [fetchKitchenOrders, handleRefresh]);
 
     const ordersByStatus = useMemo(() => ({
         Pending: kitchenOrders.filter(o => o.status === "Pending"),

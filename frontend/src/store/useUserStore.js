@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axiosInstance from "../axios/axiosInstace";
 import { toast } from "sonner";
 
-const useUserStore = create((set, get) => ({
+const useUserStore = create((set) => ({
     staff: [],
     isLoading: false,
     error: null,
@@ -56,7 +56,7 @@ const useUserStore = create((set, get) => ({
                 staff: state.staff.map((s) => (s._id === id ? { ...s, isActive: response.data.isActive } : s))
             }));
             toast.success(response.data.message);
-        } catch (error) {
+        } catch (error) { // eslint-disable-line no-unused-vars
             toast.error("Failed to toggle staff status");
         }
     },
@@ -66,7 +66,7 @@ const useUserStore = create((set, get) => ({
             await axiosInstance.delete(`/users/staff/${id}`);
             set((state) => ({ staff: state.staff.filter((s) => s._id !== id) }));
             toast.success("Staff deleted successfully");
-        } catch (error) {
+        } catch (error) { // eslint-disable-line no-unused-vars
             toast.error("Failed to delete staff");
         }
     }

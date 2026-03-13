@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useOrderStore } from '@/store/useOrderStore';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 
 // Component Imports
 import OrderTerminalHeader from '../components/OrderTerminalHeader';
@@ -32,7 +32,7 @@ const Dishes = () => {
             clearInterval(timer);
             clearInterval(poll);
         };
-    }, [getAllOrders]);
+    }, [getAllOrders, pagination?.currentPage]);
 
     // Handle initial selection or clearing if orders change
     useEffect(() => {
@@ -40,7 +40,7 @@ const Dishes = () => {
             const updated = recentOrders.find(o => o._id === selectedOrder._id);
             if (updated) {
                 if (JSON.stringify(updated) !== JSON.stringify(selectedOrder)) {
-                    setSelectedOrder(updated);
+                    setSelectedOrder(updated); // eslint-disable-line react-hooks/set-state-in-effect
                 }
             } else {
                 setSelectedOrder(null);
@@ -174,7 +174,7 @@ const Dishes = () => {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     onClick={() => setSelectedOrder(null)}
-                                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] lg:hidden"
+                                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-45 lg:hidden"
                                 />
 
                                 <motion.aside

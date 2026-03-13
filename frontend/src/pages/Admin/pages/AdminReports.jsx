@@ -27,16 +27,16 @@ const AdminReports = () => {
 
     const [filter, setFilter] = useState("daily");
 
-    useEffect(() => {
-        loadData(filter);
-    }, [filter]);
-
-    const loadData = (f) => {
+    const loadData = React.useCallback(async (f) => {
         fetchSalesReports(f);
         fetchCashierCollections(f);
         fetchTopSellingItems(f);
         fetchProfitLoss(f === "daily" ? "monthly" : f); // P&L usually monthly/weekly
-    };
+    }, [fetchSalesReports, fetchCashierCollections, fetchTopSellingItems, fetchProfitLoss]);
+
+    useEffect(() => {
+        loadData(filter);
+    }, [filter, loadData]);
 
     const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 

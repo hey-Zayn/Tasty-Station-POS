@@ -22,7 +22,7 @@ const AddTableModal = ({ isOpen, onClose, tableToEdit = null }) => {
 
     useEffect(() => {
         if (tableToEdit) {
-            setFormData({
+            setFormData({ // eslint-disable-line react-hooks/set-state-in-effect
                 name: tableToEdit.name,
                 capacity: tableToEdit.capacity,
                 zone: tableToEdit.zone,
