@@ -31,7 +31,7 @@ const DashboardHome = () => {
 
     useEffect(() => {
         getStats();
-    }, [getStats]);
+    }, []);
 
     // POS dashboard stats mapping
     const statCards = [

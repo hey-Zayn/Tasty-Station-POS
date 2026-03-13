@@ -23,7 +23,7 @@ const CustomerHistory = () => {
 
     useEffect(() => {
         fetchClients();
-    }, [fetchClients]);
+    }, []);
 
     const handleViewDetail = async (id) => {
         await fetchClientHistory(id);

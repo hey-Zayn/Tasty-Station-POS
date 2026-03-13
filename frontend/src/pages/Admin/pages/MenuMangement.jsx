@@ -8,8 +8,8 @@ import { useMenuStore } from '@/store/useMenuStore'
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 const MenuMangement = () => {
-    const { menu, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();
-    const [activeCategory] = useState("All");
+    const { menu, category, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();
+    const [activeCategory, setActiveCategory] = useState("All");
 
     useEffect(() => {
         getAllCategories();
