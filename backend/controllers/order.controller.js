@@ -1,53 +1,59 @@
+const mongoose = require("mongoose");
 const Order = require("../models/order.model");
 const { MenuItem } = require("../models/menu.model");
 const Client = require("../models/client.model");
+const ApiError = require("../utils/ApiError");
+const { getIo } = require("../config/socket.config");
 
+// ... (createOrder logic up to generating unique ID)
 // Create a new order
-const createOrder = async (req, res) => {
+const createOrder = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { type, paymentMethod, items, clientId, tableId, clientName, clientPhone } = req.body;
 
         if (!items || items.length === 0) {
-            return res.status(400).json({ success: false, message: "Order must contain at least one item." });
+            throw new ApiError(400, "Order must contain at least one item.");
         }
 
         // 1. Find or Create Client
         let client;
         if (clientId) {
-            client = await Client.findById(clientId);
+            client = await Client.findById(clientId).session(session);
         } else if (clientPhone) {
-            client = await Client.findOne({ phone: clientPhone });
+            client = await Client.findOne({ phone: clientPhone }).session(session);
             if (!client) {
                 if (!clientName) {
-                    return res.status(400).json({ success: false, message: "Client name is required for new customers." });
+                    throw new ApiError(400, "Client name is required for new customers.");
                 }
-                client = await Client.create({
+                [client] = await Client.create([{
                     name: clientName,
                     phone: clientPhone,
                     totalSpent: 0,
                     orders: [],
                     lastVisit: new Date()
-                });
+                }], { session });
             }
         } else {
-            return res.status(400).json({ success: false, message: "Client phone number is required." });
+            throw new ApiError(400, "Client phone number is required.");
         }
 
         if (!client) {
-            return res.status(404).json({ success: false, message: "Client not found or could not be created." });
+            throw new ApiError(404, "Client not found or could not be created.");
         }
 
         const finalClientId = client._id;
-
 
         // 2. Calculate total and validate items
         let totalAmount = 0;
         const validItems = [];
 
         for (const item of items) {
-            const menuItem = await MenuItem.findById(item.menuItem);
+            const menuItem = await MenuItem.findById(item.menuItem).session(session);
             if (!menuItem) {
-                return res.status(404).json({ success: false, message: `Menu item not found: ${item.menuItem}` });
+                throw new ApiError(404, `Menu item not found: ${item.menuItem}`);
             }
 
             // Use current price from DB, not from frontend
@@ -80,20 +86,32 @@ const createOrder = async (req, res) => {
             table: tableId || null
         });
 
-        await newOrder.save();
+        await newOrder.save({ session });
 
         // 5. Update Client History
         await Client.findByIdAndUpdate(finalClientId, {
             $push: { orders: newOrder._id },
             $inc: { totalSpent: totalAmount },
             $set: { lastVisit: new Date() }
-        });
+        }, { session });
+
+        // Commit transaction
+        await session.commitTransaction();
+        session.endSession();
 
         // 6. Populate and return for billing slip
         const populatedOrder = await Order.findById(newOrder._id)
             .populate("client", "name email phone address")
             .populate("user", "name")
             .populate("table", "name zone");
+
+        // Emit real-time event for new order
+        try {
+            const io = getIo();
+            io.emit("newOrder", populatedOrder);
+        } catch (socketError) {
+            console.error("Socket.io error on newOrder:", socketError);
+        }
 
         res.status(201).json({
             success: true,
@@ -102,13 +120,14 @@ const createOrder = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Create Order Error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        await session.abortTransaction();
+        session.endSession();
+        next(error);
     }
 };
 
-// Get all orders
-const getAllOrders = async (req, res) => {
+// ... (getAllOrders, getOrderStats, getOrderById, getKitchenOrders remain unchanged)
+const getAllOrders = async (req, res, next) => {
     try {
         const { type, status, date, page = 1, limit = 10 } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -143,13 +162,11 @@ const getAllOrders = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error("Get Orders Error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        next(error);
     }
 };
 
-// Get order statistics for dashboard
-const getOrderStats = async (req, res) => {
+const getOrderStats = async (req, res, next) => {
     try {
         const totalOrders = await Order.countDocuments();
         const pendingOrders = await Order.countDocuments({ status: "Pending" });
@@ -181,13 +198,11 @@ const getOrderStats = async (req, res) => {
             recentOrders
         });
     } catch (error) {
-        console.error("Get Order Stats Error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        next(error);
     }
 };
 
-// Get single order for reprint
-const getOrderById = async (req, res) => {
+const getOrderById = async (req, res, next) => {
     try {
         const order = await Order.findById(req.params.id)
             .populate("client")
@@ -200,13 +215,11 @@ const getOrderById = async (req, res) => {
 
         res.status(200).json({ success: true, order });
     } catch (error) {
-        console.error("Get Order Error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        next(error);
     }
 };
 
-// Get orders for kitchen (Pending, Preparing, Ready)
-const getKitchenOrders = async (req, res) => {
+const getKitchenOrders = async (req, res, next) => {
     try {
         const orders = await Order.find({
             status: { $in: ["Pending", "Preparing", "Ready"] }
@@ -218,13 +231,13 @@ const getKitchenOrders = async (req, res) => {
 
         res.status(200).json({ success: true, orders });
     } catch (error) {
-        console.error("Get Kitchen Orders Error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        next(error);
     }
 };
 
+
 // Update order status
-const updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res, next) => {
     try {
         const { status } = req.body;
         const { id } = req.params;
@@ -245,10 +258,17 @@ const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
+        // Emit real-time event for order status update
+        try {
+            const io = getIo();
+            io.emit("orderStatusUpdate", order);
+        } catch (socketError) {
+            console.error("Socket.io error on orderStatusUpdate:", socketError);
+        }
+
         res.status(200).json({ success: true, message: `Order marked as ${status}`, order });
     } catch (error) {
-        console.error("Update Order Status Error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        next(error);
     }
 };
 

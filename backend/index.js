@@ -2,9 +2,8 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-
-
-
+const http = require("http");
+const { initSocket } = require("./config/socket.config");
 
 const connectDB = require("./config/database/connection");
 const userRouter = require("./routers/user.router");
@@ -18,10 +17,15 @@ const reportRouter = require("./routers/report.router");
 const clientRouter = require("./routers/client.router");
 const dashboardRouter = require("./routers/dashboard.router");
 const redisTestRouter = require("./routers/redis.test.router");
+const errorHandler = require("./middlewares/error.middleware");
 
 
 const app = express();
+const server = http.createServer(app);
 const port = process.env.PORT || 3000;
+
+// Initialize Socket.io
+initSocket(server);
 
 app.set('trust proxy', 1);
 app.use(express.json());
@@ -66,6 +70,9 @@ app.use('/api', redisTestRouter);
 const chatRouter = require("./routers/chat.router");
 app.use('/api/chat', chatRouter);
 
+// Global Error Handler - Must be last
+app.use(errorHandler);
+
 
 connectDB();
 
@@ -79,6 +86,6 @@ app.get('/', (req, res) => {
 })
 
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

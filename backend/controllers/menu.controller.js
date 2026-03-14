@@ -1,6 +1,7 @@
 const { Category, MenuItem } = require("../models/menu.model");
-const redisClient = require("../redis/redisClient");
 const cloudinary = require("../config/cloudinary/cloudinary");
+const { clearCache } = require("../middlewares/cache.middleware");
+const ApiError = require("../utils/ApiError");
 
 // --- Category Controllers ---
 
@@ -9,7 +10,7 @@ const createCategory = async (req, res) => {
         const { name, description } = req.body;
 
         const existingCategory = await Category.findOne({ name });
-        if (existingCategory) return res.status(400).json({ success: false, message: "Category already exists" });
+        if (existingCategory) throw new ApiError(400, "Category already exists");
 
         let image = "";
 
@@ -24,12 +25,11 @@ const createCategory = async (req, res) => {
         const savedCategory = await category.save();
 
         // Invalidate cache
-        redisClient.delByPattern('cache:/api/menu/category*');
+        await clearCache('cache:/api/menu/category*');
 
         res.status(201).json({ success: true, category: savedCategory });
     } catch (error) {
-        console.error("Error creating category:", error);
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -61,10 +61,10 @@ const getAllCategories = async (req, res) => {
 const getCategoryById = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
-        if (!category) return res.status(404).json({ success: false, message: "Category not found" });
+        if (!category) throw new ApiError(404, "Category not found");
         res.status(200).json({ success: true, category });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -82,14 +82,14 @@ const updateCategory = async (req, res) => {
         }
 
         const updatedCategory = await Category.findByIdAndUpdate(id, updateData, { new: true });
-        if (!updatedCategory) return res.status(404).json({ success: false, message: "Category not found" });
+        if (!updatedCategory) throw new ApiError(404, "Category not found");
 
         // Invalidate cache
-        redisClient.delByPattern('cache:/api/menu/category*');
+        await clearCache('cache:/api/menu/category*');
 
         res.status(200).json({ success: true, message: "Category updated", category: updatedCategory });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -98,18 +98,18 @@ const deleteCategory = async (req, res) => {
         const id = req.params.id;
         const items = await MenuItem.find({ category: id });
         if (items.length > 0) {
-            return res.status(400).json({ success: false, message: "Cannot delete category with associated items. Please delete or reassign items first." });
+            throw new ApiError(400, "Cannot delete category with associated items. Please delete or reassign items first.");
         }
 
         const category = await Category.findByIdAndDelete(id);
-        if (!category) return res.status(404).json({ success: false, message: "Category not found" });
+        if (!category) throw new ApiError(404, "Category not found");
 
         // Invalidate cache
-        redisClient.delByPattern('cache:/api/menu/category*');
+        await clearCache('cache:/api/menu/category*');
 
         res.status(200).json({ success: true, message: "Category deleted" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -129,7 +129,7 @@ const createMenuItem = async (req, res) => {
         }
 
         const existingItem = await MenuItem.findOne({ name });
-        if (existingItem) return res.status(400).json({ success: false, message: "Item already exists" });
+        if (existingItem) throw new ApiError(400, "Item already exists");
 
         let image = "";
         if (req.body.image && typeof req.body.image === 'string') {
@@ -145,12 +145,11 @@ const createMenuItem = async (req, res) => {
         const savedItem = await menuItem.save();
 
         // Invalidate cache
-        redisClient.delByPattern('cache:/api/menu/item*');
+        await clearCache('cache:/api/menu/item*');
 
         res.status(201).json({ success: true, menuItem: savedItem });
     } catch (error) {
-        console.error("Error creating menu item:", error);
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -187,10 +186,10 @@ const getAllMenuItems = async (req, res) => {
 const getMenuItemById = async (req, res) => {
     try {
         const menuItem = await MenuItem.findById(req.params.id).populate('category', 'name');
-        if (!menuItem) return res.status(404).json({ success: false, message: "Menu item not found" });
+        if (!menuItem) throw new ApiError(404, "Menu item not found");
         res.status(200).json({ success: true, menuItem });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -215,14 +214,14 @@ const updateMenuItem = async (req, res) => {
         }
 
         const updatedItem = await MenuItem.findByIdAndUpdate(id, updateData, { new: true });
-        if (!updatedItem) return res.status(404).json({ success: false, message: "Menu item not found" });
+        if (!updatedItem) throw new ApiError(404, "Menu item not found");
 
         // Invalidate cache
-        redisClient.delByPattern('cache:/api/menu/item*');
+        await clearCache('cache:/api/menu/item*');
 
         res.status(200).json({ success: true, message: "Menu item updated", menuItem: updatedItem });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 
@@ -230,14 +229,14 @@ const deleteMenuItem = async (req, res) => {
     try {
         const id = req.params.id;
         const menuItem = await MenuItem.findByIdAndDelete(id);
-        if (!menuItem) return res.status(404).json({ success: false, message: "Menu item not found" });
+        if (!menuItem) throw new ApiError(404, "Menu item not found");
 
         // Invalidate cache
-        redisClient.delByPattern('cache:/api/menu/item*');
+        await clearCache('cache:/api/menu/item*');
 
         res.status(200).json({ success: true, message: "Menu item deleted" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 };
 

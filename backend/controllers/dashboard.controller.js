@@ -4,7 +4,7 @@ const Inventory = require("../models/inventory.model");
 const User = require("../models/user.model");
 const Client = require("../models/client.model");
 
-exports.getDashboardOverview = async (req, res) => {
+exports.getDashboardOverview = async (req, res, next) => {
     try {
         const now = new Date();
         const startOfToday = new Date(now.setHours(0, 0, 0, 0));
@@ -69,10 +69,6 @@ exports.getDashboardOverview = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error fetching dashboard data",
-            error: error.message
-        });
+        next(error);
     }
 };
