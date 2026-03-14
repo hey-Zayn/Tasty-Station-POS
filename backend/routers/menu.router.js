@@ -7,7 +7,7 @@ const {
 const { protectedRoute, isAdmin } = require("../middlewares/auth.middleware");
 const { validateCategory, validateMenuItem } = require("../middlewares/validators/menu.validator");
 
-const cacheMiddleware = require("../middlewares/cache.middleware");
+const { cacheMiddleware } = require("../middlewares/cache.middleware");
 
 // --- Category Routes ---
 // Use upload middleware to handle multipart/form-data. This populates req.body with text fields and req.file with the image.

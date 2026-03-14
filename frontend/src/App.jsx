@@ -1,38 +1,69 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuthStore } from './store/useAuthStore'
+import { useThemeStore } from './store/useThemeStore'
+import { useOrderStore } from './store/useOrderStore'
+import { connectSocket, disconnectSocket } from './config/socket.config'
+import { Loader } from 'lucide-react'
+
+// Layouts and Core Pages (Static)
 import Login from './pages/Auth/Login'
 import Signup from './pages/Auth/Signup'
 import Dashboard from './pages/dashboard/Dashboard'
-import { useAuthStore } from './store/useAuthStore'
-import { useThemeStore } from './store/useThemeStore'
-import { Loader } from 'lucide-react'
+import AdminLayout from './pages/Admin/AdminLayout'
 import DashboardHome from './pages/dashboard/page/DashboardHome'
+
+// Dashboard Pages (Static for POS speed)
 import OrderPage from './pages/dashboard/page/OrderPage'
 import ManageTables from './pages/dashboard/page/ManageTables'
 import Inventory from './pages/dashboard/page/Inventory'
 import Dishes from './pages/dashboard/page/Dishes'
-import AdminLayout from './pages/Admin/AdminLayout'
-import AdminHome from './pages/Admin/pages/AdminHome'
-import MenuMangement from './pages/Admin/pages/MenuMangement'
-import AddCategory from './pages/Admin/pages/AddCategory'
-import AddMenu from './pages/Admin/pages/AddMenu'
-import AdminTables from './pages/Admin/pages/AdminTables'
 import Customer from './pages/dashboard/page/Customer'
-import ManageInventory from './pages/Admin/pages/ManageInventory'
-import AdminReports from './pages/Admin/pages/AdminReports'
-import StaffManagement from './pages/Admin/pages/StaffManagement'
-import CustomerHistory from './pages/Admin/pages/CustomerHistory'
-import AdminDashboard from './pages/Admin/pages/AdminDashboard'
 import KitchenDashboard from './pages/dashboard/page/KitchenDashboard'
+
+// Admin Pages (Lazy Loaded)
+const AdminDashboard = lazy(() => import('./pages/Admin/pages/AdminDashboard'));
+const MenuMangement = lazy(() => import('./pages/Admin/pages/MenuMangement'));
+const AddCategory = lazy(() => import('./pages/Admin/pages/AddCategory'));
+const AddMenu = lazy(() => import('./pages/Admin/pages/AddMenu'));
+const AdminTables = lazy(() => import('./pages/Admin/pages/AdminTables'));
+const ManageInventory = lazy(() => import('./pages/Admin/pages/ManageInventory'));
+const AdminReports = lazy(() => import('./pages/Admin/pages/AdminReports'));
+const StaffManagement = lazy(() => import('./pages/Admin/pages/StaffManagement'));
+const CustomerHistory = lazy(() => import('./pages/Admin/pages/CustomerHistory'));
+
 import ChatWidget from './components/chat/ChatWidget';
+
+const PageLoader = () => (
+  <div className="w-full h-[60vh] flex justify-center items-center">
+    <Loader className="animate-spin size-10 text-cyan-500" />
+  </div>
+);
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
+  const { setupSocketListeners, cleanupSocketListeners } = useOrderStore();
 
   React.useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Manage Socket.io connection based on auth state
+  React.useEffect(() => {
+    if (authUser) {
+      connectSocket();
+      setupSocketListeners();
+    } else {
+      cleanupSocketListeners();
+      disconnectSocket();
+    }
+
+    return () => {
+      cleanupSocketListeners();
+      disconnectSocket();
+    };
+  }, [authUser, setupSocketListeners, cleanupSocketListeners]);
 
   React.useEffect(() => {
     const root = window.document.documentElement;
@@ -84,15 +115,51 @@ const App = () => {
         </Route>
 
         <Route path='/admin' element={authUser && authUser.role === 'admin' ? <AdminLayout /> : <Navigate to={authUser ? "/" : "/login"} />} >
-          <Route index element={<AdminDashboard />} />
-          <Route path="/admin/menu" element={<MenuMangement />} />
-          <Route path="/admin/add-category" element={<AddCategory />} />
-          <Route path="/admin/add-menu" element={<AddMenu />} />
-          <Route path="/admin/tables" element={<AdminTables />} />
-          <Route path="/admin/inventory" element={<ManageInventory />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
-          <Route path="/admin/staff" element={<StaffManagement />} />
-          <Route path="/admin/customer-history" element={<CustomerHistory />} />
+          <Route index element={
+            <Suspense fallback={<PageLoader />}>
+              <AdminDashboard />
+            </Suspense>
+          } />
+          <Route path="/admin/menu" element={
+            <Suspense fallback={<PageLoader />}>
+              <MenuMangement />
+            </Suspense>
+          } />
+          <Route path="/admin/add-category" element={
+            <Suspense fallback={<PageLoader />}>
+              <AddCategory />
+            </Suspense>
+          } />
+          <Route path="/admin/add-menu" element={
+            <Suspense fallback={<PageLoader />}>
+              <AddMenu />
+            </Suspense>
+          } />
+          <Route path="/admin/tables" element={
+            <Suspense fallback={<PageLoader />}>
+              <AdminTables />
+            </Suspense>
+          } />
+          <Route path="/admin/inventory" element={
+            <Suspense fallback={<PageLoader />}>
+              <ManageInventory />
+            </Suspense>
+          } />
+          <Route path="/admin/reports" element={
+            <Suspense fallback={<PageLoader />}>
+              <AdminReports />
+            </Suspense>
+          } />
+          <Route path="/admin/staff" element={
+            <Suspense fallback={<PageLoader />}>
+              <StaffManagement />
+            </Suspense>
+          } />
+          <Route path="/admin/customer-history" element={
+            <Suspense fallback={<PageLoader />}>
+              <CustomerHistory />
+            </Suspense>
+          } />
         </Route>
 
       </Routes>

@@ -52,4 +52,8 @@ const cacheMiddleware = (ttl = 3600) => {
     };
 };
 
-module.exports = cacheMiddleware;
+const clearCache = async (pattern) => {
+    await redisClient.delByPattern(pattern);
+};
+
+module.exports = { cacheMiddleware, clearCache };
