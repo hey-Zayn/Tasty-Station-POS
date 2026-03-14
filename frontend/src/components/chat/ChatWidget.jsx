@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import useChatStore from '../../store/useChatStore';
 
 const ChatWidget = () => {
@@ -29,7 +29,7 @@ const ChatWidget = () => {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <Motion.div
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -108,12 +108,12 @@ const ChatWidget = () => {
                                 </button>
                             </div>
                         </form>
-                    </motion.div>
+                    </Motion.div>
                 )}
             </AnimatePresence>
 
             {/* Toggle Button */}
-            <motion.button
+            <Motion.button
                 onClick={toggleChat}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -124,7 +124,7 @@ const ChatWidget = () => {
                 {!isOpen && (
                     <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900"></span>
                 )}
-            </motion.button>
+            </Motion.button>
         </div>
     );
 };

@@ -22,7 +22,7 @@ import {
     MapPin,
     Package
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { formatDistanceToNow, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -136,7 +136,7 @@ const OrderTableView = ({ orders, selectedOrderId, onSelectOrder }) => {
                             const TypeIcon = orderType.icon;
 
                             return (
-                                <motion.tr
+                                <Motion.tr
                                     key={order._id}
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -259,7 +259,7 @@ const OrderTableView = ({ orders, selectedOrderId, onSelectOrder }) => {
                                             <Eye className="h-4 w-4" />
                                         </Button>
                                     </TableCell>
-                                </motion.tr>
+                                </Motion.tr>
                             );
                         })}
                     </TableBody>

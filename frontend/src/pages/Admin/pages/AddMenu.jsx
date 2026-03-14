@@ -64,6 +64,7 @@ const AddMenu = () => {
     // Reset form when dialog closes
     useEffect(() => {
         if (!isDialogOpen) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 name: "",
                 description: "",
@@ -83,7 +84,7 @@ const AddMenu = () => {
         }
     }, [isDialogOpen]);
 
-    const getStockStatus = (stock = 100) => {
+    const getStockStatus = () => {
         if (!isAvailable) return { label: 'Unavailable', variant: 'destructive', className: 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200' };
         return { label: 'In Stock', variant: 'success', className: 'bg-teal-100 text-teal-700 border-teal-200 hover:bg-teal-200' };
     };
