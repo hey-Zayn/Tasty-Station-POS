@@ -59,5 +59,8 @@ const orderSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Compound index for optimizing order queries (e.g. fetching 'Pending' orders sorted by newest first)
+orderSchema.index({ status: 1, createdAt: -1 });
+
 const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;
