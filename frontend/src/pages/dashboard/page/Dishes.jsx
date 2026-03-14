@@ -32,7 +32,7 @@ const Dishes = () => {
             clearInterval(timer);
             clearInterval(poll);
         };
-    }, [getAllOrders]);
+    }, [getAllOrders, pagination?.currentPage]);
 
     // Handle initial selection or clearing if orders change
     useEffect(() => {
@@ -44,7 +44,6 @@ const Dishes = () => {
                     setSelectedOrder(updated);
                 }
             } else {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setSelectedOrder(null);
             }
         }

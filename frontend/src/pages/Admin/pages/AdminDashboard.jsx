@@ -251,6 +251,7 @@ const AdminDashboard = () => {
     );
 };
 
+// eslint-disable-next-line no-unused-vars
 const StatCard = ({ label, value, sub, icon: IconComponent, trend, trendUp, color }) => {
     const colorMap = {
         teal: "bg-teal-500",
