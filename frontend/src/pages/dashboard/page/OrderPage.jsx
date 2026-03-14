@@ -97,6 +97,22 @@ const OrderPage = () => {
         documentTitle: `Order_${lastOrder?.orderId || 'Receipt'}`,
     });
 
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Ignore if typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            if (e.key === 'Enter' && cart.length > 0 && !isOrderLoading && !lastOrder) {
+                e.preventDefault();
+                handlePlaceOrder();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cart, isOrderLoading, lastOrder, clientDetails, orderType, paymentMethod, selectedTable]);
+
     return (
         <div className="flex flex-col lg:flex-row h-[calc(100vh-5rem)] bg-gray-50 dark:bg-black/20 overflow-hidden">
             {/* Left Side: Menu */}
