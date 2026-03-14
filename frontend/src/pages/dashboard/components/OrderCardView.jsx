@@ -12,7 +12,7 @@ import {
     XCircle,
     ChevronRight
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -87,7 +87,7 @@ const OrderCardView = ({ orders, selectedOrderId, onSelectOrder }) => {
                     const TypeIcon = orderType.icon;
 
                     return (
-                        <motion.div
+                        <Motion.div
                             key={order._id}
                             layout
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -200,7 +200,7 @@ const OrderCardView = ({ orders, selectedOrderId, onSelectOrder }) => {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </Motion.div>
                     );
                 })}
             </AnimatePresence>

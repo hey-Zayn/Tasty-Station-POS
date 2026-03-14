@@ -12,8 +12,8 @@ import {
     Trash2,
     RefreshCw,
     Filter,
-    ArrowUpDown,
-    CheckCircle2
+    CheckCircle2,
+    TrendingDown
 } from 'lucide-react';
 import Pagination from '@/components/ui/custom-pagination';
 import {
@@ -52,7 +52,7 @@ import {
 import { AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 const Inventory = () => {
     const { items, stats, isLoading, fetchInventory, fetchReports, addStockItem, updateStockItem, deleteStockItem, pagination } = useInventoryStore();
@@ -188,7 +188,7 @@ const Inventory = () => {
                         status: "Active Tasks"
                     }
                 ].map((stat, index) => (
-                    <motion.div
+                    <Motion.div
                         key={index}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -317,7 +317,7 @@ const Inventory = () => {
                                 )} />
                             </CardContent>
                         </Card>
-                    </motion.div>
+                    </Motion.div>
                 ))}
             </div>
 
@@ -450,7 +450,7 @@ const Inventory = () => {
                             {filteredItems.map((item, idx) => {
                                 const isLowStock = item.quantity <= item.reorderLevel;
                                 return (
-                                    <motion.tr
+                                    <Motion.tr
                                         key={item._id}
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -505,7 +505,7 @@ const Inventory = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </Motion.tr>
                                 );
                             })}
                         </AnimatePresence>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useOrderStore } from '@/store/useOrderStore';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion as Motion } from 'framer-motion';
 
 // Component Imports
 import OrderTerminalHeader from '../components/OrderTerminalHeader';
@@ -32,7 +32,7 @@ const Dishes = () => {
             clearInterval(timer);
             clearInterval(poll);
         };
-    }, [getAllOrders]);
+    }, [getAllOrders, pagination?.currentPage]);
 
     // Handle initial selection or clearing if orders change
     useEffect(() => {
@@ -40,6 +40,7 @@ const Dishes = () => {
             const updated = recentOrders.find(o => o._id === selectedOrder._id);
             if (updated) {
                 if (JSON.stringify(updated) !== JSON.stringify(selectedOrder)) {
+                    // eslint-disable-next-line react-hooks/set-state-in-effect
                     setSelectedOrder(updated);
                 }
             } else {
@@ -94,7 +95,7 @@ const Dishes = () => {
                     <main className={`flex-1 min-w-0 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${selectedOrder ? 'lg:mr-[450px]' : ''}`}>
                         <AnimatePresence mode="wait">
                             {isLoading && recentOrders.length === 0 ? (
-                                <motion.div
+                                <Motion.div
                                     key="loader"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -111,9 +112,9 @@ const Dishes = () => {
                                         <h3 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white uppercase">Initializing Terminal</h3>
                                         <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.3em] mt-3">Connecting to secure order vault...</p>
                                     </div>
-                                </motion.div>
+                                </Motion.div>
                             ) : filteredOrders.length === 0 ? (
-                                <motion.div
+                                <Motion.div
                                     key="empty"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -131,9 +132,9 @@ const Dishes = () => {
                                     >
                                         Reset All Filters
                                     </Button>
-                                </motion.div>
+                                </Motion.div>
                             ) : (
-                                <motion.div
+                                <Motion.div
                                     key={viewMode}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -159,7 +160,7 @@ const Dishes = () => {
                                             onPageChange={handlePageChange}
                                         />
                                     </div>
-                                </motion.div>
+                                </Motion.div>
                             )}
                         </AnimatePresence>
                     </main>
@@ -169,7 +170,7 @@ const Dishes = () => {
                         {selectedOrder && (
                             <>
                                 {/* Mobile Backdrop */}
-                                <motion.div
+                                <Motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
@@ -177,7 +178,7 @@ const Dishes = () => {
                                     className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] lg:hidden"
                                 />
 
-                                <motion.aside
+                                <Motion.aside
                                     initial={{ x: '100%', opacity: 0.5 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     exit={{ x: '100%', opacity: 0 }}
@@ -191,7 +192,7 @@ const Dishes = () => {
                                             onUpdateStatus={updateOrderStatus}
                                         />
                                     </div>
-                                </motion.aside>
+                                </Motion.aside>
                             </>
                         )}
                     </AnimatePresence>

@@ -44,6 +44,7 @@ const OrderPage = () => {
 
     useEffect(() => {
         if (lastOrder) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setReceiptMetadata({
                 cardLastFour: (Math.floor(Math.random() * 9000) + 1000).toString(),
                 authCode: (Math.random().toString(36).substring(2, 8)).toUpperCase()

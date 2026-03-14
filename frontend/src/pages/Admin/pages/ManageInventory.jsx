@@ -48,7 +48,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 
@@ -178,7 +178,7 @@ const ManageInventory = () => {
                         subText: "Active Tasks"
                     }
                 ].map((stat, i) => (
-                    <motion.div
+                    <Motion.div
                         key={i}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -222,7 +222,7 @@ const ManageInventory = () => {
                                 </div>
                             </CardContent>
                         </Card>
-                    </motion.div>
+                    </Motion.div>
                 ))}
             </div>
 
@@ -355,7 +355,7 @@ const ManageInventory = () => {
                             {filteredItems.map((item, idx) => {
                                 const isLowStock = item.quantity <= item.reorderLevel;
                                 return (
-                                    <motion.tr
+                                    <Motion.tr
                                         key={item._id}
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -410,7 +410,7 @@ const ManageInventory = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </Motion.tr>
                                 );
                             })}
                         </AnimatePresence>

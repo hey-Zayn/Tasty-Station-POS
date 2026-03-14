@@ -24,7 +24,7 @@ const AdminDashboard = () => {
         fetchDashboardSummary();
         const interval = setInterval(fetchDashboardSummary, 30000); // Auto-refresh every 30s
         return () => clearInterval(interval);
-    }, []);
+    }, [fetchDashboardSummary]);
 
     if (!dashboardData && isLoading) {
         return (
@@ -251,7 +251,8 @@ const AdminDashboard = () => {
     );
 };
 
-const StatCard = ({ label, value, sub, icon: Icon, trend, trendUp, color }) => {
+// eslint-disable-next-line no-unused-vars
+const StatCard = ({ label, value, sub, icon: IconComponent, trend, trendUp, color }) => {
     const colorMap = {
         teal: "bg-teal-500",
         amber: "bg-amber-500",
@@ -270,7 +271,7 @@ const StatCard = ({ label, value, sub, icon: Icon, trend, trendUp, color }) => {
                         <p className="text-xs font-medium text-muted-foreground">{sub}</p>
                     </div>
                     <div className={`p-3 rounded-2xl ${colorMap[color]} text-white shadow-lg shadow-${color}-500/20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}>
-                        <Icon className="size-5" />
+                        <IconComponent className="size-5" />
                     </div>
                 </div>
                 {trend && (

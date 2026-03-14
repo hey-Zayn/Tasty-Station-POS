@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 
 const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
@@ -64,7 +64,7 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
     const action = getStatusAction();
 
     return (
-        <motion.div
+        <Motion.div
             initial={{ opacity: 0, x: 40, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             className="h-full flex flex-col bg-white dark:bg-[#16191C] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white/20 dark:border-gray-800 overflow-hidden relative"
@@ -93,7 +93,7 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
                         <span className="text-teal-600">{currentStatus}</span>
                     </div>
                     <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <motion.div
+                        <Motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${statusProgress[currentStatus]}%` }}
                             className={cn(
@@ -208,7 +208,7 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
                     </Button>
                 </div>
             </div>
-        </motion.div>
+        </Motion.div>
     );
 };
 

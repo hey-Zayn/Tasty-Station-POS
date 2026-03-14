@@ -44,10 +44,11 @@ const StaffManagement = () => {
 
     useEffect(() => {
         fetchStaff();
-    }, []);
+    }, [fetchStaff]);
 
     useEffect(() => {
         if (editingStaff) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 name: editingStaff.name || "",
                 email: editingStaff.email || "",

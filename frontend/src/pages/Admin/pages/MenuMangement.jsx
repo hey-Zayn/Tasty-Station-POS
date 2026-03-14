@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Hamburger, Minus, Plus, Loader2, Utensils } from "lucide-react"
+import { Minus, Plus, Loader2, Utensils } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import { useMenuStore } from '@/store/useMenuStore'
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 const MenuMangement = () => {
-    const { menu, category, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();
-    const [activeCategory, setActiveCategory] = useState("All");
+    const { menu, getAllMenuItems, getAllCategories, isLoading } = useMenuStore();
+    const [activeCategory] = useState("All");
 
     useEffect(() => {
         getAllCategories();

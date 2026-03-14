@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Hamburger, Minus, Plus, Loader2, Utensils, ChevronLeft, ChevronRight } from "lucide-react"
+import { Minus, Plus, Loader2, Utensils, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import { useMenuStore } from '@/store/useMenuStore'
@@ -82,7 +82,7 @@ const MenuMangement = () => {
                 {/* Left Gradient & Arrow */}
                 {showLeftArrow && (
                     <>
-                        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white dark:from-gray-900 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                        <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-white dark:from-gray-900 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
                         <button
                             onClick={() => handleScroll('left')}
                             className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-100 dark:border-gray-700 text-teal-600 dark:text-teal-400 hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none ring-2 ring-transparent hover:ring-teal-500/20"
@@ -138,7 +138,7 @@ const MenuMangement = () => {
                 {/* Right Gradient & Arrow */}
                 {showRightArrow && (
                     <>
-                        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white dark:from-gray-900 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
+                        <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-white dark:from-gray-900 to-transparent z-10 pointer-events-none transition-opacity duration-300" />
                         <button
                             onClick={() => handleScroll('right')}
                             className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-100 dark:border-gray-700 text-teal-600 dark:text-teal-400 hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none ring-2 ring-transparent hover:ring-teal-500/20"
