@@ -4,7 +4,7 @@ const ApiError = require("../utils/ApiError");
  * Global error handling middleware.
  * Catches all errors and formats them into a standard JSON response.
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
     let error = err;
 
     // Check if error is an instance of ApiError

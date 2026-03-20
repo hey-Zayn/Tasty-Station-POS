@@ -13,7 +13,8 @@ import {
     RefreshCw,
     Filter,
     CheckCircle2,
-    TrendingDown
+    TrendingDown,
+    ChevronDown
 } from 'lucide-react';
 import Pagination from '@/components/ui/custom-pagination';
 import {
@@ -41,6 +42,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -128,380 +130,420 @@ const Inventory = () => {
 
     return (
         <div className="p-4 md:p-8 space-y-8 bg-white dark:bg-[#0F1113] min-h-screen transition-colors duration-500">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                {/* <div className="space-y-1">
-                    <h1 className="text-4xl font-[1000] tracking-tighter text-gray-900 dark:text-white flex items-center gap-3">
-                        <Package className="h-10 w-10 text-teal-600" />
-                        Inventory Control
-                    </h1>
-                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Manage your warehouse and supply chain metrics</p>
-                </div> */}
 
 
-            </div>
 
             {/* Stats Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                     {
                         label: "Total Items",
-                        value: stats?.totalItems || 0,
+                        value: stats?.totalItems?.toLocaleString() || '0',
                         icon: Package,
-                        color: "text-blue-600",
-                        bg: "bg-blue-50 dark:bg-blue-950/30",
-                        borderColor: "border-blue-100 dark:border-blue-900/30",
                         description: "Stock items tracked",
-                        trend: { value: "+12.5%", positive: true },
-                        trending: true
+                        tag: { label: `↑ trend`, variant: "up" },
+                        footer: { meta: "Updated just now", action: "View all" },
                     },
                     {
                         label: "Low Stock",
                         value: stats?.lowStockCount || 0,
                         icon: AlertTriangle,
-                        color: "text-amber-600",
-                        bg: "bg-amber-50 dark:bg-amber-950/30",
-                        borderColor: "border-amber-100 dark:border-amber-900/30",
                         description: "Below reorder threshold",
-                        alert: (stats?.lowStockCount > 0),
-                        status: "Requires Attention"
+                        alert: stats?.lowStockCount > 0,
+                        tag: { label: "⚠ Attention", variant: "alert" },
+                        footer: { meta: "Requires action", action: "Review" },
                     },
                     {
                         label: "Asset Value",
-                        value: `$${(stats?.totalValue || 0).toLocaleString()}`,
+                        value: `Rs ${(stats?.totalValue || 0).toLocaleString()}`,
                         icon: DollarSign,
-                        color: "text-emerald-600",
-                        bg: "bg-emerald-50 dark:bg-emerald-950/30",
-                        borderColor: "border-emerald-100 dark:border-emerald-900/30",
                         description: "Total inventory value",
-                        trend: { value: "+5.2%", positive: true },
-                        trending: true
+                        tag: { label: "↑ +5.2%", variant: "up" },
+                        footer: { meta: "This month", action: "Breakdown" },
                     },
                     {
                         label: "Reorders",
                         value: stats?.lowStockCount || 0,
                         icon: RefreshCw,
-                        color: "text-purple-600",
-                        bg: "bg-purple-50 dark:bg-purple-950/30",
-                        borderColor: "border-purple-100 dark:border-purple-900/30",
                         description: "Pending procurement tasks",
-                        status: "Active Tasks"
-                    }
-                ].map((stat, index) => (
+                        tag: { label: "Active", variant: "neutral" },
+                        footer: { meta: `${stats?.lowStockCount || 0} pending`, action: "Process" },
+                    },
+                ].map((stat, i) => (
                     <Motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
+                        key={i}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ scale: 1.02 }}
+                        transition={{ delay: i * 0.06, duration: 0.2 }}
                     >
                         <Card className={cn(
-                            "h-full border overflow-hidden transition-all duration-200",
-                            "hover:shadow-lg hover:border-border/70",
-                            stat.borderColor,
-                            stat.alert && "ring-1 ring-amber-500/20"
+                            "border bg-card rounded-xl overflow-hidden transition-colors duration-150 hover:border-border/80",
+                            stat.alert ? "border-amber-300/70 dark:border-amber-700/50" : "border-border/50"
                         )}>
-                            <CardContent className="p-5">
-                                {/* Header */}
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className={cn(
-                                            "p-2.5 rounded-lg shadow-sm",
-                                            stat.bg,
-                                            stat.alert && "animate-pulse"
-                                        )}>
-                                            <stat.icon className={cn("h-5 w-5", stat.color)} />
-                                        </div>
-                                        <div>
-                                            <span className="text-sm font-medium text-muted-foreground">
-                                                {stat.label}
-                                            </span>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                {stat.trending && (
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className={cn(
-                                                            "h-5 px-1.5 text-xs font-normal",
-                                                            stat.trend.positive
-                                                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                                                                : "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
-                                                        )}
-                                                    >
-                                                        {stat.trend.value}
-                                                    </Badge>
-                                                )}
-                                                {stat.status && (
-                                                    <Badge
-                                                        variant="outline"
-                                                        className={cn(
-                                                            "h-5 px-1.5 text-xs border",
-                                                            stat.alert
-                                                                ? "border-amber-200 text-amber-700 dark:border-amber-900 dark:text-amber-400"
-                                                                : "border-border text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {stat.status}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+                            <CardContent className="p-[18px] flex flex-col gap-[14px]">
 
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
+                                {/* Top Row: Icon + Tag */}
+                                <div className="flex items-start justify-between">
+                                    <div className="w-8 h-8 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center shrink-0">
+                                        <stat.icon className={cn(
+                                            "w-3.5 h-3.5",
+                                            stat.alert ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                                        )} />
+                                    </div>
+                                    <span className={cn(
+                                        "inline-flex items-center h-[18px] px-1.5 rounded-[4px] font-mono text-[10px] font-bold tracking-[0.03em]",
+                                        stat.tag.variant === "up" &&
+                                        "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+                                        stat.tag.variant === "alert" &&
+                                        "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+                                        stat.tag.variant === "neutral" &&
+                                        "bg-muted text-muted-foreground border border-border/50"
+                                    )}>
+                                        {stat.tag.label}
+                                    </span>
                                 </div>
 
-                                {/* Value Display */}
-                                <div className="space-y-2">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className={cn(
-                                            "text-2xl font-bold",
-                                            stat.alert ? "text-amber-700 dark:text-amber-400" : "text-foreground"
-                                        )}>
-                                            {stat.value}
-                                        </span>
-
-                                        {stat.trending && (
-                                            <span className={cn(
-                                                "text-xs font-medium flex items-center",
-                                                stat.trend.positive
-                                                    ? "text-emerald-600 dark:text-emerald-400"
-                                                    : "text-rose-600 dark:text-rose-400"
-                                            )}>
-                                                {stat.trend.positive ? (
-                                                    <TrendingUp className="h-3 w-3 mr-1" />
-                                                ) : (
-                                                    <TrendingDown className="h-3 w-3 mr-1" />
-                                                )}
-                                                {stat.trend.value}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Description */}
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                {/* Value Block */}
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em]">
+                                        {stat.label}
+                                    </span>
+                                    <span className={cn(
+                                        "font-mono text-[22px] font-bold tracking-tight leading-none",
+                                        stat.alert
+                                            ? "text-amber-700 dark:text-amber-400"
+                                            : "text-foreground"
+                                    )}>
+                                        {stat.value}
+                                    </span>
+                                    <span className="text-[11px] text-muted-foreground/60 mt-0.5">
                                         {stat.description}
-                                    </p>
-
-
-
-
-                                    {/* Action Button for reorders */}
-                                    {stat.label === "Reorders" && stats?.lowStockCount > 0 && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="w-full mt-3 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                                        >
-                                            <RefreshCw className="mr-2 h-3.5 w-3.5" />
-                                            Process Reorders
-                                        </Button>
-                                    )}
+                                    </span>
                                 </div>
 
-                                {/* Decorative Element */}
-                                <div className={cn(
-                                    "absolute bottom-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity",
-                                    stat.alert
-                                        ? "bg-gradient-to-r from-amber-400 to-amber-600"
-                                        : stat.color === "text-blue-600"
-                                            ? "bg-gradient-to-r from-blue-400 to-blue-600"
-                                            : stat.color === "text-emerald-600"
-                                                ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
-                                                : "bg-gradient-to-r from-purple-400 to-purple-600"
-                                )} />
+                                {/* Footer */}
+                                <div className="flex items-center justify-between pt-3 border-t border-border/40">
+                                    <span className="text-[10px] text-muted-foreground/50">
+                                        {stat.footer.meta}
+                                    </span>
+                                    <button className="text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer">
+                                        {stat.footer.action} →
+                                    </button>
+                                </div>
+
                             </CardContent>
                         </Card>
                     </Motion.div>
                 ))}
             </div>
 
-            {/* Controls Section */}
-            <div className="flex flex-col md:flex-row gap-6 items-center justify-between pb-2">
-                <div className="relative w-full md:w-96  group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-teal-600 transition-colors" />
-                    <Input
-                        placeholder="Search items, categories, or suppliers..."
-                        className="pl-12 h-14 bg-white dark:bg-teal-900/20 rounded-full border-2 border-teal-600 ring-1 ring-black/5 shadow-inner focus-visible:ring-2 focus-visible:ring-teal-600"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+
+                {/* Left Side: Search & Filters */}
+                <div className="flex items-center gap-2.5 w-full sm:w-auto flex-1">
+
+                    {/* Search */}
+                    <div className="relative flex-1 sm:max-w-[280px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search inventory..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 h-9 bg-card border-border/50 hover:border-border/80 rounded-md text-[13px] shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors placeholder:text-muted-foreground w-full"
+                        />
+                    </div>
+
+                    {/* Category Filter */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="h-9 px-3 bg-card border-border/50 hover:border-border/80 rounded-md text-[13px] font-medium text-foreground hover:bg-card shadow-sm transition-colors shrink-0"
+                            >
+                                <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+                                {selectedCategory === 'All' ? 'All Categories' : selectedCategory}
+                                <ChevronDown className="w-3 h-3 opacity-50 ml-2" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="start"
+                            className="min-w-[180px] rounded-lg border-border/60 shadow-lg p-1.5"
+                        >
+                            {categories.map(cat => (
+                                <DropdownMenuItem
+                                    key={cat}
+                                    onClick={() => setSelectedCategory(cat)}
+                                    className={cn(
+                                        "rounded-md text-[13px] font-medium px-2.5 py-1.5 cursor-pointer transition-colors outline-none",
+                                        selectedCategory === cat
+                                            ? "bg-primary/10 text-primary focus:bg-primary/15"
+                                            : "text-foreground hover:bg-muted focus:bg-muted"
+                                    )}
+                                >
+                                    {cat}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto">
+                {/* Right Side: Actions */}
+                <div className="flex items-center shrink-0 w-full sm:w-auto">
+                    {/* Add Item Dialog */}
+                    <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+                        setIsAddDialogOpen(open);
+                        if (!open) {
+                            setEditingItem(null);
+                            setFormData({ name: '', category: '', quantity: 0, unit: 'pcs', reorderLevel: 10, supplier: '', costPerUnit: 0 });
+                        }
+                    }}>
+                        <DialogTrigger asChild>
+                            <Button className="h-9 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md text-[13px] font-medium shadow-sm w-full sm:w-auto transition-all">
+                                <Plus className="w-4 h-4 mr-2 -ml-1" />
+                                New Stock Item
+                            </Button>
+                        </DialogTrigger>
 
+                        <DialogContent className="sm:max-w-[500px] p-0 border-border/60 shadow-xl overflow-hidden rounded-xl">
+                            <div className="px-6 pb-4 pt-6 bg-card border-b border-border/40">
+                                <DialogTitle className="text-lg font-semibold text-foreground tracking-tight leading-none">
+                                    {editingItem ? 'Edit Stock Item' : 'New Stock Item'}
+                                </DialogTitle>
+                                <DialogDescription className="text-[13px] text-muted-foreground mt-2">
+                                    Define the details for warehouse tracking and inventory control.
+                                </DialogDescription>
+                            </div>
 
+                            <form onSubmit={handleSubmit} className="bg-muted/10">
+                                <div className="px-6 py-6 grid grid-cols-2 gap-x-5 gap-y-5">
 
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => { fetchInventory(); fetchReports(); }}
-                            className="rounded-full border-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                        >
-                            <RefreshCw className={cn("h-5 w-5", isLoading && "animate-spin")} />
-                        </Button>
-
-                        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-                            setIsAddDialogOpen(open);
-                            if (!open) {
-                                setEditingItem(null);
-                                setFormData({ name: "", category: "", quantity: 0, unit: "pcs", reorderLevel: 10, supplier: "", costPerUnit: 0 });
-                            }
-                        }}>
-                            <DialogTrigger asChild>
-                                <Button className="h-12 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-full font-black uppercase tracking-widest shadow-xl shadow-teal-600/20 transition-all active:scale-95 flex gap-2">
-                                    <Plus className="h-5 w-5" />
-                                    New Stock Item
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] p-8 border-none ring-1 ring-black/5 bg-white dark:bg-gray-900">
-                                <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black tracking-tighter uppercase italic">{editingItem ? "Edit Item" : "Add New Item"}</DialogTitle>
-                                    <DialogDescription className="font-bold text-gray-400 uppercase text-[10px] tracking-widest">Enter item details for warehouse tracking</DialogDescription>
-                                </DialogHeader>
-                                <form onSubmit={handleSubmit} className="space-y-6 py-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2 col-span-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Item Name</Label>
-                                            <Input name="name" value={formData.name} onChange={handleFormChange} placeholder="e.g., Tomato Ketchup" className="rounded-xl border-2 h-12" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Category</Label>
-                                            <Input name="category" value={formData.category} onChange={handleFormChange} placeholder="e.g., Sauces" className="rounded-xl border-2 h-12" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Unit</Label>
-                                            <Input name="unit" value={formData.unit} onChange={handleFormChange} placeholder="e.g., kg, pcs" className="rounded-xl border-2 h-12" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Current Quantity</Label>
-                                            <Input name="quantity" type="number" value={formData.quantity} onChange={handleFormChange} className="rounded-xl border-2 h-12" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Reorder Level</Label>
-                                            <Input name="reorderLevel" type="number" value={formData.reorderLevel} onChange={handleFormChange} className="rounded-xl border-2 h-12" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Cost Per Unit (Rs)</Label>
-                                            <Input name="costPerUnit" type="number" value={formData.costPerUnit} onChange={handleFormChange} className="rounded-xl border-2 h-12" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-wider">Supplier</Label>
-                                            <Input name="supplier" value={formData.supplier} onChange={handleFormChange} placeholder="e.g., Green Farm Co." className="rounded-xl border-2 h-12" />
-                                        </div>
+                                    {/* Item Name */}
+                                    <div className="col-span-2 space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">
+                                            Item Name
+                                        </Label>
+                                        <Input
+                                            name="name" value={formData.name} onChange={handleFormChange}
+                                            placeholder="e.g. Tomato Ketchup"
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                            required
+                                        />
                                     </div>
-                                    <DialogFooter>
-                                        <Button type="submit" className="w-full h-14 bg-teal-600 hover:bg-teal-700 font-black uppercase tracking-widest text-white rounded-2xl shadow-xl shadow-teal-600/20">
-                                            {editingItem ? "Update Item" : "Save Stock Item"}
+
+                                    {/* Category */}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">Category</Label>
+                                        <Input
+                                            name="category" value={formData.category} onChange={handleFormChange}
+                                            placeholder="e.g. Sauces"
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Unit */}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">Unit</Label>
+                                        <Input
+                                            name="unit" value={formData.unit} onChange={handleFormChange}
+                                            placeholder="kg, pcs, ltr"
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Quantity */}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">Quantity</Label>
+                                        <Input
+                                            name="quantity" type="number" value={formData.quantity} onChange={handleFormChange}
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Reorder Level */}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">Reorder Level</Label>
+                                        <Input
+                                            name="reorderLevel" type="number" value={formData.reorderLevel} onChange={handleFormChange}
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Unit Cost */}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">Cost / Unit (Rs)</Label>
+                                        <Input
+                                            name="costPerUnit" type="number" value={formData.costPerUnit} onChange={handleFormChange}
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Supplier */}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[13px] font-semibold text-foreground">Supplier</Label>
+                                        <Input
+                                            name="supplier" value={formData.supplier} onChange={handleFormChange}
+                                            placeholder="Green Farm Co."
+                                            className="h-9 text-[13px] rounded-md border-border/60 bg-background shadow-sm focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors"
+                                        />
+                                    </div>
+
+                                </div>
+
+                                <div className="px-6 py-4 bg-muted/40 border-t border-border/40 flex items-center justify-end gap-3">
+                                    <DialogClose asChild>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="h-9 px-4 rounded-md text-[13px] font-medium shadow-sm transition-colors text-muted-foreground hover:text-foreground hover:bg-background"
+                                        >
+                                            Cancel
                                         </Button>
-                                    </DialogFooter>
-                                </form>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-
-
-
-                    <div className="flex items-center gap-3 w-full md:w-auto">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="h-14 px-6 rounded-full border border-teal-800 ring-1 ring-black/5 text-teal-600 dark:bg-transparent flex gap-2 font-black uppercase text-xs tracking-widest">
-                                    <Filter className="h-4 w-4" />
-                                    {selectedCategory === "All" ? "All Categories" : selectedCategory}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="rounded-xl p-2 min-w-[200px] border-none shadow-2xl bg-white dark:bg-teal-900">
-                                {categories.map(cat => (
-                                    <DropdownMenuItem
-                                        key={cat}
-                                        onClick={() => setSelectedCategory(cat)}
-                                        className="rounded-xl h-10 font-bold uppercase text-[10px] tracking-widest cursor-pointer hover:bg-teal-600"
+                                    </DialogClose>
+                                    <Button
+                                        type="submit"
+                                        className="h-9 px-4 rounded-md bg-foreground hover:bg-foreground/90 text-background text-[13px] font-medium shadow-sm transition-all"
                                     >
-                                        {cat}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                                        {editingItem ? 'Save Changes' : 'Create Item'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 
             {/* Data Table */}
-            <div className="bg-white dark:bg-[#16191C] rounded-md shadow-md border border-gray-200 dark:border-teal-800 overflow-hidden">
+            <div className="bg-card border border-border/50 shadow-sm rounded-xl overflow-hidden">
                 <Table>
-                    <TableHeader className="bg-teal-600 dark:bg-teal-900/90">
-                        <TableRow className="h-16 border-b border-gray-100 dark:border-gray-800">
-                            <TableHead className="w-[300px] text-white font-black uppercase text-[10px] tracking-widest pl-8">Stock Item</TableHead>
-                            <TableHead className="text-white font-black uppercase text-[10px] tracking-widest">Category</TableHead>
-                            <TableHead className="text-white font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
-                            <TableHead className="text-white font-black uppercase text-[10px] tracking-widest text-right">In Stock</TableHead>
-                            <TableHead className="text-white font-black uppercase text-[10px] tracking-widest text-right">Unit Cost</TableHead>
-                            <TableHead className="text-white font-black uppercase text-[10px] tracking-widest text-right pr-8">Actions</TableHead>
+                    <TableHeader>
+                        <TableRow className="h-10 border-b border-border/50 hover:bg-transparent bg-muted/20">
+                            <TableHead className="pl-5 w-[280px] text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                                Stock Item
+                            </TableHead>
+                            <TableHead className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                                Category
+                            </TableHead>
+                            <TableHead className="text-center text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                                Status
+                            </TableHead>
+                            <TableHead className="text-right text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                                In Stock
+                            </TableHead>
+                            <TableHead className="text-right text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                                Unit Cost
+                            </TableHead>
+                            <TableHead className="pr-5 text-right text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                                Actions
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
+
                     <TableBody>
                         <AnimatePresence mode="popLayout">
                             {filteredItems.map((item, idx) => {
-                                const isLowStock = item.quantity <= item.reorderLevel;
+                                const isLow = item.quantity <= item.reorderLevel;
                                 return (
                                     <Motion.tr
                                         key={item._id}
-                                        initial={{ opacity: 0, y: 10 }}
+                                        initial={{ opacity: 0, y: 6 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                        className="group h-20 border-b border-gray-100 dark:border-gray-800 hover:bg-teal-50/20 dark:hover:bg-teal-900/10 transition-colors"
+                                        exit={{ opacity: 0 }}
+                                        transition={{ delay: idx * 0.03, duration: 0.15 }}
+                                        className="group h-[56px] border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors"
                                     >
-                                        <TableCell className="pl-8">
-                                            <div className="flex items-center gap-4">
-                                                <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center font-black text-xs shadow-inner", isLowStock ? "bg-amber-100/50 text-amber-600" : "bg-teal-100/50 text-teal-600")}>
+                                        {/* Stock Item */}
+                                        <TableCell className="pl-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn(
+                                                    "w-8 h-8 rounded-lg flex items-center justify-center font-medium text-xs shrink-0 border shadow-sm",
+                                                    isLow
+                                                        ? "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400"
+                                                        : "bg-background text-foreground border-border/60"
+                                                )}>
                                                     {item.name.slice(0, 2).toUpperCase()}
                                                 </div>
-                                                <div>
-                                                    <p className="font-black text-gray-900 dark:text-white capitalize leading-tight">{item.name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{item.supplier || "Internal Store"}</p>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-[13px] font-medium text-foreground leading-snug truncate capitalize">
+                                                        {item.name}
+                                                    </span>
+                                                    <span className="text-[12px] text-muted-foreground truncate">
+                                                        {item.supplier || 'Internal Store'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </TableCell>
+
+                                        {/* Category */}
                                         <TableCell>
-                                            <Badge variant="outline" className="rounded-lg h-7 font-black uppercase text-[9px] tracking-widest bg-gray-50 dark:bg-gray-800 border-none text-gray-500">
+                                            <span className="inline-flex items-center h-5 px-2 rounded-md text-[11px] font-medium bg-secondary text-secondary-foreground border border-border/40 whitespace-nowrap">
                                                 {item.category}
-                                            </Badge>
+                                            </span>
                                         </TableCell>
+
+                                        {/* Status */}
                                         <TableCell className="text-center">
-                                            {isLowStock ? (
-                                                <div className="flex items-center justify-center gap-1.5 text-amber-600">
-                                                    <AlertTriangle className="h-4 w-4" />
-                                                    <span className="text-[10px] font-[1000] uppercase tracking-tighter">Low Stock</span>
-                                                </div>
+                                            {isLow ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20 dark:text-amber-400">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                                                    Low Stock
+                                                </span>
                                             ) : (
-                                                <div className="flex items-center justify-center gap-1.5 text-emerald-600">
-                                                    <CheckCircle2 className="h-4 w-4" />
-                                                    <span className="text-[10px] font-[1000] uppercase tracking-tighter">Healthy</span>
-                                                </div>
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 dark:text-emerald-400">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                                                    Healthy
+                                                </span>
                                             )}
                                         </TableCell>
+
+                                        {/* In Stock */}
                                         <TableCell className="text-right">
-                                            <p className={cn("text-base font-black tracking-tight", isLowStock ? "text-amber-600" : "dark:text-white")}>
-                                                {item.quantity} <span className="text-[10px] font-bold text-gray-400 lowercase">{item.unit}</span>
-                                            </p>
-                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Min: {item.reorderLevel}</p>
+                                            <div className="flex flex-col items-end">
+                                                <span className={cn(
+                                                    "text-[13px] font-medium tabular-nums flex items-baseline gap-1",
+                                                    isLow ? "text-amber-600 dark:text-amber-400" : "text-foreground"
+                                                )}>
+                                                    {item.quantity}
+                                                    <span className="text-[11px] text-muted-foreground font-normal">
+                                                        {item.unit}
+                                                    </span>
+                                                </span>
+                                                <span className="text-[11px] text-muted-foreground mt-0.5">
+                                                    Min: {item.reorderLevel}
+                                                </span>
+                                            </div>
                                         </TableCell>
-                                        <TableCell className="text-right font-black text-gray-900 dark:text-white">
-                                            Rs {item.costPerUnit?.toLocaleString() || 0}
+
+                                        {/* Unit Cost */}
+                                        <TableCell className="text-right">
+                                            <span className="text-[13px] font-medium text-foreground tabular-nums">
+                                                Rs {item.costPerUnit?.toLocaleString() || 0}
+                                            </span>
                                         </TableCell>
-                                        <TableCell className="text-right pr-8">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} className="h-9 w-9 rounded-xl hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20">
-                                                    <Edit className="h-4 w-4" />
+
+                                        {/* Actions */}
+                                        <TableCell className="pr-5">
+                                            <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleEdit(item)}
+                                                    className="w-7 h-7 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+                                                >
+                                                    <Edit className="w-3.5 h-3.5" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => deleteStockItem(item._id)} className="h-9 w-9 rounded-xl hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/20">
-                                                    <Trash2 className="h-4 w-4" />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => deleteStockItem(item._id)}
+                                                    className="w-7 h-7 rounded-md hover:bg-rose-500/10 text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -512,21 +554,25 @@ const Inventory = () => {
                     </TableBody>
                 </Table>
 
-                <div className="p-4 border-t bg-gray-50/10 dark:bg-gray-800/5">
-                    <Pagination
-                        pagination={pagination}
-                        onPageChange={handlePageChange}
-                    />
+                {/* Footer */}
+                <div className="flex flex-col sm:flex-row items-center justify-between px-5 py-3 border-t border-border/50 bg-muted/10 gap-3">
+                    <span className="text-[12px] text-muted-foreground">
+                        Showing <span className="font-medium text-foreground">{filteredItems.length}</span> of <span className="font-medium text-foreground">{pagination.total}</span> items
+                    </span>
+                    <Pagination pagination={pagination} onPageChange={handlePageChange} />
                 </div>
 
+                {/* Empty State */}
                 {filteredItems.length === 0 && !isLoading && (
-                    <div className="py-20 flex flex-col items-center justify-center space-y-4">
-                        <div className="h-20 w-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-300">
-                            <Search size={40} />
+                    <div className="py-16 flex flex-col items-center justify-center gap-3 text-center">
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                            <Search className="w-5 h-5 text-muted-foreground" />
                         </div>
-                        <div className="text-center">
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">No Items Matching</h3>
-                            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Try adjusting your filters or search keywords</p>
+                        <div>
+                            <p className="text-[14px] font-medium text-foreground">No items found</p>
+                            <p className="text-[13px] text-muted-foreground mt-1">
+                                Try adjusting your filters or search term
+                            </p>
                         </div>
                     </div>
                 )}

@@ -23,7 +23,7 @@ const Navbar = () => {
             <div className="flex h-16 items-center px-4 lg:px-8">
                 {/* Logo */}
                 <div className="flex items-center gap-3">
-                    <div className="size-7 bg-teal-700 rounded-md flex items-center justify-center">
+                    <div className="size-7 bg-primary rounded-md flex items-center justify-center">
                         <span className="text-primary-foreground font-bold text-sm">TS</span>
                     </div>
                     <h1 className="text-lg font-bold">
@@ -70,7 +70,7 @@ const Navbar = () => {
                         variant="ghost"
                         size="icon"
                         className="lg:hidden"
-                        aria-label="Menu"
+                        aria-label="Open menu"
                     >
                         <Menu className="h-5 w-5" />
                     </Button>
@@ -81,7 +81,7 @@ const Navbar = () => {
                             variant="ghost"
                             size="icon"
                             className="relative"
-                            aria-label="Notifications"
+                            aria-label="View notifications"
                         >
                             <Bell className="h-5 w-5" />
                             <span className="absolute -top-1 -right-1 size-2 bg-red-500 rounded-full border border-background" />
@@ -158,90 +158,73 @@ const Navbar = () => {
                         authUser && <div className="flex items-center gap-3 pl-3 border-l">
                             <div className="flex flex-col items-end max-sm:hidden lg:block">
                                 <span className="text-sm font-medium">{authUser.name}</span>
-                                {/* <span className="text-xs text-muted-foreground">Admin</span> */}
                             </div>
 
-                            <Button
-                                variant="secondary"
-                                size="icon"
-                                className="h-9 w-9 p-0 rounded-full overflow-hidden hover:bg-muted"
-                                aria-label="User profile"
-                            >
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger>
-                                        <Avatar className="h-full w-full">
-                                            <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" />
-                                            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                                                JD
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        className="relative h-10 w-10 rounded-full p-0 hover:bg-accent transition-all duration-200 active:scale-95"
+                                        aria-label="User profile and account settings"
+                                    >
+                                        <Avatar className="h-full w-full ring-2 ring-transparent hover:ring-primary/20 transition-all">
+                                            <AvatarImage
+                                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser.name}`}
+                                                alt={authUser.name}
+                                            />
+                                            <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
+                                                {authUser.name?.slice(0, 2).toUpperCase()}
                                             </AvatarFallback>
                                         </Avatar>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                className="relative h-10 w-10 rounded-full p-0 hover:bg-accent transition-colors"
-                                            >
-                                                <Avatar className="h-full w-full ring-2 ring-background">
-                                                    <AvatarImage
-                                                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=John"
-                                                        alt="User avatar"
-                                                    />
-                                                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
-                                                        JD
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                            align="end"
-                                            className="w-56 bg-background border-border shadow-lg rounded-lg"
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-56 bg-background border-border shadow-lg rounded-lg"
+                                >
+                                    <DropdownMenuLabel className="p-3 text-sm font-semibold">
+                                        My Account
+                                    </DropdownMenuLabel>
+
+                                    <DropdownMenuSeparator className="bg-border" />
+
+                                    <div className="p-1">
+                                        <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
+                                            <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            Profile
+                                        </DropdownMenuItem>
+
+                                        <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
+                                            <CreditCard className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            Billing
+                                        </DropdownMenuItem>
+
+                                        <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
+                                            <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            Team
+                                        </DropdownMenuItem>
+
+                                        <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
+                                            <Settings className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            Settings
+                                        </DropdownMenuItem>
+                                    </div>
+
+                                    <DropdownMenuSeparator className="bg-border" />
+
+                                    <div className="p-2">
+                                        <Button
+                                            onClick={logout}
+                                            variant="destructive"
+                                            size="sm"
+                                            className="w-full justify-start text-sm font-medium py-2 px-3"
                                         >
-                                            <DropdownMenuLabel className="p-3 text-sm font-semibold">
-                                                My Account
-                                            </DropdownMenuLabel>
-
-                                            <DropdownMenuSeparator className="bg-border" />
-
-                                            <div className="p-1">
-                                                <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
-                                                    <User className="h-4 w-4 mr-2 text-muted-foreground" />
-                                                    Profile
-                                                </DropdownMenuItem>
-
-                                                <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
-                                                    <CreditCard className="h-4 w-4 mr-2 text-muted-foreground" />
-                                                    Billing
-                                                </DropdownMenuItem>
-
-                                                <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
-                                                    <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                                                    Team
-                                                </DropdownMenuItem>
-
-                                                <DropdownMenuItem className="px-3 py-2.5 text-sm cursor-pointer rounded-md hover:bg-accent focus:bg-accent transition-colors">
-                                                    <Settings className="h-4 w-4 mr-2 text-muted-foreground" />
-                                                    Settings
-                                                </DropdownMenuItem>
-                                            </div>
-
-                                            <DropdownMenuSeparator className="bg-border" />
-
-                                            <div className="p-2">
-                                                <Button
-                                                    onClick={logout}
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    className="w-full justify-start text-sm font-medium py-2 px-3"
-                                                >
-                                                    <LogOut className="h-4 w-4 mr-2" />
-                                                    Log out
-                                                </Button>
-                                            </div>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </DropdownMenu>
-                            </Button>
+                                            <LogOut className="h-4 w-4 mr-2" />
+                                            Log out
+                                        </Button>
+                                    </div>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     }
 

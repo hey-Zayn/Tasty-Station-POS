@@ -54,7 +54,7 @@ const Sidebar = () => {
 
     return (
         <aside className={cn(
-            "sticky top-16 flex flex-col h-[calc(100vh-64px)] bg-background border-r transition-all duration-300",
+            "flex flex-col h-full bg-background border-r transition-all duration-300",
             collapsed ? "w-20" : "w-64"
         )}>
             {/* Header */}
@@ -65,18 +65,18 @@ const Sidebar = () => {
                 )}>
                     {!collapsed && (
                         <div className="flex items-center gap-3">
-                            <div className="size-9 bg-teal-700 rounded-lg flex items-center justify-center shadow-lg">
+                            <div className="size-9 bg-primary rounded-lg flex items-center justify-center shadow-md">
                                 <Hamburger className="size-5 text-primary-foreground" />
                             </div>
                             <div>
-                                <h1 className="font-bold text-lg leading-tight">Tasty <span className="font-normal text-muted-foreground">Station</span></h1>
-                                <p className="text-xs text-muted-foreground">Admin Panel</p>
+                                <h1 className="font-bold text-lg leading-tight tracking-tight">Tasty <span className="font-normal text-muted-foreground">Station</span></h1>
+                                <p className="text-[10px] font-semibold text-primary/70 uppercase tracking-widest">Admin Panel</p>
                             </div>
                         </div>
                     )}
                     {collapsed && (
-                        <div className="size-10 bg-teal-700 rounded-lg flex items-center justify-center">
-                            <Hamburger className="size-5 text-primary-foreground hidden " />
+                        <div className="size-10 bg-primary rounded-lg flex items-center justify-center shadow-md">
+                            <Hamburger className="size-5 text-primary-foreground" />
                         </div>
                     )}
                     <button
@@ -105,36 +105,29 @@ const Sidebar = () => {
                                 <div
                                     onClick={() => setActiveItem(item.id)}
                                     className={cn(
-                                        "w-full flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer",
-                                        "hover:bg-muted hover:text-foreground",
+                                        "w-full flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all duration-300 group cursor-pointer relative",
+                                        "hover:bg-accent hover:text-accent-foreground",
                                         isActive
-                                            ? " text-teal-700  border border-teal-600 shadow-sm"
+                                            ? "text-primary bg-primary/5 border border-primary/20 shadow-sm"
                                             : "text-muted-foreground",
 
                                     )}
                                 >
                                     <div className="relative">
                                         <Icon className={cn(
-                                            "size-5 transition-transform",
-                                            isActive && "text-teal-700",
+                                            "size-5 transition-all duration-300",
+                                            isActive && "text-primary scale-110",
                                             collapsed && "mx-auto"
                                         )} />
-                                        {/* {item.badge > 0 && (
-                                            <span className={cn(
-                                                "absolute -top-1.5 -right-1.5 size-5 rounded-full text-xs font-medium flex items-center justify-center",
-                                                isActive
-                                                    ? "bg-cyan-700 text-primary-foreground"
-                                                    : "bg-cyan-700 text-primary-foreground"
-                                            )}>
-                                                {item.badge}
-                                            </span>
-                                        )} */}
                                     </div>
                                     {!collapsed && (
                                         <>
-                                            <span className="font-medium flex-1 text-left">{item.label}</span>
+                                            <span className={cn(
+                                                "font-medium flex-1 text-left transition-colors",
+                                                isActive ? "text-primary" : "group-hover:text-foreground"
+                                            )}>{item.label}</span>
                                             {isActive && (
-                                                <div className="size-1.5 rounded-full bg-cyan-700/50 animate-pulse" />
+                                                <div className="size-1.5 rounded-full bg-primary animate-pulse-subtle shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
                                             )}
                                         </>
                                     )}
@@ -156,10 +149,10 @@ const Sidebar = () => {
                             <div
                                 onClick={() => setActiveItem(item.id)}
                                 className={cn(
-                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer",
-                                    "hover:bg-muted hover:text-foreground",
+                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 cursor-pointer",
+                                    "hover:bg-accent hover:text-accent-foreground",
                                     isActive
-                                        ? "bg-muted text-foreground"
+                                        ? "bg-accent text-accent-foreground shadow-sm"
                                         : "text-muted-foreground"
                                 )}
                             >
@@ -181,7 +174,7 @@ const Sidebar = () => {
                 <button
                     onClick={logout}
                     className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-colors",
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-all duration-300 active:scale-95 font-medium",
                         collapsed && "justify-center"
                     )}
                 >

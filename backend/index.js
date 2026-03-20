@@ -33,6 +33,8 @@ const apiLimiter = rateLimit({
     message: { success: false, message: "Too many requests from this IP, please try again after 15 minutes" }
 });
 
+app.use('/api', apiLimiter);
+
 // App initialization
 initSocket(server);
 
@@ -83,7 +85,9 @@ app.use('/api/chat', chatRouter);
 app.use(errorHandler);
 
 
-connectDB();
+if (process.env.NODE_ENV !== 'test') {
+    connectDB();
+}
 
 
 
@@ -95,6 +99,10 @@ app.get('/', (req, res) => {
 })
 
 
-server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    server.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
+
+module.exports = app;

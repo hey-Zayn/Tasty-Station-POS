@@ -23,7 +23,7 @@ import KitchenDashboard from './pages/dashboard/page/KitchenDashboard'
 
 // Admin Pages (Lazy Loaded)
 const AdminDashboard = lazy(() => import('./pages/Admin/pages/AdminDashboard'));
-const MenuMangement = lazy(() => import('./pages/Admin/pages/MenuMangement'));
+const MenuManagement = lazy(() => import('./pages/Admin/pages/MenuManagement'));
 const AddCategory = lazy(() => import('./pages/Admin/pages/AddCategory'));
 const AddMenu = lazy(() => import('./pages/Admin/pages/AddMenu'));
 const AdminTables = lazy(() => import('./pages/Admin/pages/AdminTables'));
@@ -33,6 +33,7 @@ const StaffManagement = lazy(() => import('./pages/Admin/pages/StaffManagement')
 const CustomerHistory = lazy(() => import('./pages/Admin/pages/CustomerHistory'));
 
 import ChatWidget from './components/chat/ChatWidget';
+import { Toaster } from 'sonner';
 
 const PageLoader = () => (
   <div className="w-full h-[60vh] flex justify-center items-center">
@@ -122,7 +123,7 @@ const App = () => {
           } />
           <Route path="/admin/menu" element={
             <Suspense fallback={<PageLoader />}>
-              <MenuMangement />
+              <MenuManagement />
             </Suspense>
           } />
           <Route path="/admin/add-category" element={
@@ -164,6 +165,7 @@ const App = () => {
 
       </Routes>
       {authUser && <ChatWidget />}
+      <Toaster position="top-right" richColors expand={false} />
     </>
   )
 }

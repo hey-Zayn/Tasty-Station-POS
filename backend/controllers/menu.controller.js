@@ -5,7 +5,7 @@ const ApiError = require("../utils/ApiError");
 
 // --- Category Controllers ---
 
-const createCategory = async (req, res) => {
+const createCategory = async (req, res, next) => {
     try {
         const { name, description } = req.body;
 
@@ -58,7 +58,7 @@ const getAllCategories = async (req, res) => {
     }
 };
 
-const getCategoryById = async (req, res) => {
+const getCategoryById = async (req, res, next) => {
     try {
         const category = await Category.findById(req.params.id);
         if (!category) throw new ApiError(404, "Category not found");
@@ -68,7 +68,7 @@ const getCategoryById = async (req, res) => {
     }
 };
 
-const updateCategory = async (req, res) => {
+const updateCategory = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { name, description, status } = req.body;
@@ -93,7 +93,7 @@ const updateCategory = async (req, res) => {
     }
 };
 
-const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res, next) => {
     try {
         const id = req.params.id;
         const items = await MenuItem.find({ category: id });
@@ -115,7 +115,7 @@ const deleteCategory = async (req, res) => {
 
 // --- Menu Item Controllers ---
 
-const createMenuItem = async (req, res) => {
+const createMenuItem = async (req, res, next) => {
     try {
         let { name, description, price, category, isAvailable, isVeg, spiceLevel, preparationTime, variants, taxes } = req.body;
 
@@ -155,11 +155,23 @@ const createMenuItem = async (req, res) => {
 
 const getAllMenuItems = async (req, res) => {
     try {
-        const { category, page = 1, limit = 10 } = req.query;
+        const { category, page = 1, limit = 10, search = "", isAvailable } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
         let query = {};
+
         if (category) {
             query.category = category;
+        }
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (isAvailable !== undefined && isAvailable !== "") {
+            query.isAvailable = isAvailable === 'true';
         }
 
         const totalItems = await MenuItem.countDocuments(query);
@@ -183,7 +195,7 @@ const getAllMenuItems = async (req, res) => {
     }
 };
 
-const getMenuItemById = async (req, res) => {
+const getMenuItemById = async (req, res, next) => {
     try {
         const menuItem = await MenuItem.findById(req.params.id).populate('category', 'name');
         if (!menuItem) throw new ApiError(404, "Menu item not found");
@@ -193,7 +205,7 @@ const getMenuItemById = async (req, res) => {
     }
 };
 
-const updateMenuItem = async (req, res) => {
+const updateMenuItem = async (req, res, next) => {
     try {
         const { id } = req.params;
         let updateData = { ...req.body };
@@ -201,7 +213,7 @@ const updateMenuItem = async (req, res) => {
         if (updateData.variants && typeof updateData.variants === 'string') {
             try {
                 updateData.variants = JSON.parse(updateData.variants);
-            } catch (error) {
+            } catch (_error) {
                 return res.status(400).json({ success: false, message: "Invalid variants format" });
             }
         }
@@ -225,7 +237,7 @@ const updateMenuItem = async (req, res) => {
     }
 };
 
-const deleteMenuItem = async (req, res) => {
+const deleteMenuItem = async (req, res, next) => {
     try {
         const id = req.params.id;
         const menuItem = await MenuItem.findByIdAndDelete(id);

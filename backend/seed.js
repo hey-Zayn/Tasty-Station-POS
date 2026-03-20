@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const _mongoose = require("mongoose");
 require("dotenv").config();
 const connectDB = require("./config/database/connection");
 
@@ -45,7 +45,7 @@ const seedData = async () => {
         console.log("Seeding Menu Items...");
         const menuItemsWithIds = data.menuItems.map(item => {
             const category = createdCategories.find(c => c.name === item.categoryName);
-            const { categoryName, ...rest } = item;
+            const { categoryName: _, ...rest } = item;
             return {
                 ...rest,
                 category: category ? category._id : null

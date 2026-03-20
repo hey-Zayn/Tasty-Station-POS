@@ -73,7 +73,7 @@ const AdminReports = () => {
                         <CardDescription className="flex items-center gap-2">
                             <DollarSign className="size-4" /> Total Revenue
                         </CardDescription>
-                        <CardTitle className="text-2xl">${profitLossData.totalRevenue?.toLocaleString()}</CardTitle>
+                        <CardTitle className="text-2xl">Rs {profitLossData.totalRevenue?.toLocaleString()}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center text-xs text-blue-500">
@@ -86,7 +86,7 @@ const AdminReports = () => {
                         <CardDescription className="flex items-center gap-2">
                             <TrendingUp className="size-4" /> Net Profit
                         </CardDescription>
-                        <CardTitle className="text-2xl">${profitLossData.profit?.toLocaleString()}</CardTitle>
+                        <CardTitle className="text-2xl">Rs {profitLossData.profit?.toLocaleString()}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center text-xs text-teal-500">
@@ -143,7 +143,7 @@ const AdminReports = () => {
                                 <LineChart data={salesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                                     <XAxis dataKey="_id" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `Rs ${value}`} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}
                                         labelStyle={{ color: "hsl(var(--foreground))" }}
@@ -200,7 +200,7 @@ const AdminReports = () => {
                                             <TableRow key={cashier._id}>
                                                 <TableCell className="font-medium">{cashier.cashierName}</TableCell>
                                                 <TableCell className="text-right">{cashier.orderCount}</TableCell>
-                                                <TableCell className="text-right font-bold">${cashier.totalCollected?.toLocaleString()}</TableCell>
+                                                <TableCell className="text-right font-bold">Rs {cashier.totalCollected?.toLocaleString()}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -236,7 +236,7 @@ const AdminReports = () => {
                                         <TableRow key={item._id}>
                                             <TableCell className="font-medium">{item.name}</TableCell>
                                             <TableCell className="text-right">{item.totalQuantity}</TableCell>
-                                            <TableCell className="text-right">${item.totalRevenue?.toLocaleString()}</TableCell>
+                                            <TableCell className="text-right">Rs {item.totalRevenue?.toLocaleString()}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="sm" className="h-8">View Details</Button>
                                             </TableCell>
@@ -258,18 +258,18 @@ const AdminReports = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
-                                    <p className="text-4xl font-bold text-teal-600">${profitLossData.totalRevenue?.toLocaleString()}</p>
+                                    <p className="text-4xl font-bold text-teal-600">Rs {profitLossData.totalRevenue?.toLocaleString()}</p>
                                     <p className="text-xs text-muted-foreground">Total money coming in</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Cost of Goods Sold (COGS)</p>
-                                    <p className="text-4xl font-bold text-rose-600">-${profitLossData.totalCost?.toLocaleString()}</p>
+                                    <p className="text-4xl font-bold text-rose-600">-Rs {profitLossData.totalCost?.toLocaleString()}</p>
                                     <p className="text-xs text-muted-foreground">Based on item cost prices</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Gross Profit</p>
                                     <p className={`text-4xl font-bold ${profitLossData.profit >= 0 ? "text-blue-600" : "text-red-600"}`}>
-                                        ${profitLossData.profit?.toLocaleString()}
+                                        Rs {profitLossData.profit?.toLocaleString()}
                                     </p>
                                     <p className="text-xs text-muted-foreground">Revenue minus Cost</p>
                                 </div>
@@ -290,7 +290,7 @@ const AdminReports = () => {
                                     <div className="flex justify-between items-center py-2 border-b border-dashed">
                                         <span className="text-muted-foreground">Average Order Value</span>
                                         <span className="font-medium">
-                                            ${profitLossData.orderCount > 0
+                                            Rs {profitLossData.orderCount > 0
                                                 ? (profitLossData.totalRevenue / profitLossData.orderCount).toFixed(2)
                                                 : "0.00"}
                                         </span>

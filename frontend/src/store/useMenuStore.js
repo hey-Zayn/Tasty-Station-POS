@@ -102,12 +102,14 @@ export const useMenuStore = create((set) => ({
 
     // --- Menu Items ---
 
-    getAllMenuItems: async (page = 1, limit = 10, categoryId = "") => {
+    getAllMenuItems: async (page = 1, limit = 10, categoryId = "", search = "", isAvailable = "") => {
         set({ isLoading: true, error: null });
         try {
-            const url = categoryId
-                ? `/menu/item?page=${page}&limit=${limit}&category=${categoryId}`
-                : `/menu/item?page=${page}&limit=${limit}`;
+            let url = `/menu/item?page=${page}&limit=${limit}`;
+            if (categoryId) url += `&category=${categoryId}`;
+            if (search) url += `&search=${search}`;
+            if (isAvailable !== "") url += `&isAvailable=${isAvailable}`;
+
             const response = await axiosInstance.get(url);
             set({
                 menu: response.data.menuItems,

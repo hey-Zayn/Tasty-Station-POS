@@ -77,10 +77,13 @@ export const useOrderStore = create(
                     }
                 },
 
-                getAllOrders: async (page = 1, limit = 10) => {
+                getAllOrders: async (page = 1, limit = 10, startDate = null, endDate = null) => {
                     set({ isLoading: true });
                     try {
-                        const response = await axiosInstance.get(`/orders?page=${page}&limit=${limit}`);
+                        let url = `/orders?page=${page}&limit=${limit}`;
+                        if (startDate) url += `&startDate=${startDate}`;
+                        if (endDate) url += `&endDate=${endDate}`;
+                        const response = await axiosInstance.get(url);
                         set({
                             recentOrders: response.data.orders,
                             pagination: response.data.pagination,

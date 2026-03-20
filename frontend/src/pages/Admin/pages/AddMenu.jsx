@@ -30,12 +30,25 @@ import { useMenuStore } from '@/store/useMenuStore'
 
 
 const AddMenu = () => {
-    const { menu, category, getAllMenuItems, getAllCategories, createMenuItem, updateMenuItem, deleteMenuItem, isLoading } = useMenuStore();
+    const { menu, paginationMenu, category, getAllMenuItems, getAllCategories, createMenuItem, updateMenuItem, deleteMenuItem, isLoading } = useMenuStore();
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [fileName, setFileName] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const [editingId, setEditingId] = useState(null);
+
+    // Filter & UI States
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all"); // all, available, unavailable
+    const [visibleColumns, setVisibleColumns] = useState({
+        id: true,
+        image: true,
+        name: true,
+        category: true,
+        price: true,
+        status: true,
+        actions: true
+    });
 
     // Derived state for title/button text
     const isEditMode = !!editingId;
@@ -57,9 +70,22 @@ const AddMenu = () => {
     const [spiceLevel, setSpiceLevel] = useState("medium");
 
     useEffect(() => {
-        getAllMenuItems();
         getAllCategories();
-    }, [getAllMenuItems, getAllCategories]);
+    }, [getAllCategories]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            const isAvailable = statusFilter === "all" ? "" : statusFilter === "available";
+            getAllMenuItems(1, 12, "", searchQuery, isAvailable);
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, statusFilter, getAllMenuItems]);
+
+    const handlePageChange = (newPage) => {
+        const isAvailable = statusFilter === "all" ? "" : statusFilter === "available";
+        getAllMenuItems(newPage, 12, "", searchQuery, isAvailable);
+    };
 
     // Reset form when dialog closes
     useEffect(() => {
@@ -242,23 +268,43 @@ const AddMenu = () => {
                         <Input
                             placeholder="Search dishes..."
                             className="pl-9 h-10 w-full bg-gray-50 dark:bg-accent/20 border-gray-200 dark:border-gray-700 focus-visible:ring-teal-500"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-10 ml-auto sm:ml-0">
+                                <Button variant="outline" size="sm" className={cn(
+                                    "h-10 ml-auto sm:ml-0",
+                                    statusFilter !== "all" && "border-teal-600 text-teal-600 bg-teal-50"
+                                )}>
                                     <Filter className="mr-2 h-4 w-4" />
-                                    Filter
+                                    {statusFilter === "all" ? "Filter" : statusFilter === "available" ? "In Stock" : "Unavailable"}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuCheckboxItem checked>In Stock</DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem>Low Stock</DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem>Out of Stock</DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem
+                                    checked={statusFilter === "all"}
+                                    onCheckedChange={() => setStatusFilter("all")}
+                                >
+                                    All Items
+                                </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem
+                                    checked={statusFilter === "available"}
+                                    onCheckedChange={() => setStatusFilter("available")}
+                                >
+                                    In Stock
+                                </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem
+                                    checked={statusFilter === "unavailable"}
+                                    onCheckedChange={() => setStatusFilter("unavailable")}
+                                >
+                                    Unavailable
+                                </DropdownMenuCheckboxItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
 
@@ -270,11 +316,18 @@ const AddMenu = () => {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-[150px]">
-                                <DropdownMenuCheckboxItem checked>Id</DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem checked>Image</DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem checked>Name</DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem checked>Price</DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem checked>Stock</DropdownMenuCheckboxItem>
+                                {Object.keys(visibleColumns).map((col) => (
+                                    <DropdownMenuCheckboxItem
+                                        key={col}
+                                        checked={visibleColumns[col]}
+                                        onCheckedChange={(checked) =>
+                                            setVisibleColumns(prev => ({ ...prev, [col]: checked }))
+                                        }
+                                        className="capitalize"
+                                    >
+                                        {col}
+                                    </DropdownMenuCheckboxItem>
+                                ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -288,24 +341,27 @@ const AddMenu = () => {
                                 <TableHead className="w-[40px] pl-4">
                                     <Checkbox />
                                 </TableHead>
-                                <TableHead className="w-[80px]">Id</TableHead>
-                                <TableHead className="w-[80px]">Image</TableHead>
-                                <TableHead className="min-w-[150px]">
-                                    <div className="flex items-center space-x-2 cursor-pointer hover:text-teal-600">
-                                        <span>Name</span>
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </div>
-                                </TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead>
-                                    <div className="flex items-center space-x-2 cursor-pointer hover:text-teal-600">
-                                        <span>Price</span>
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </div>
-                                </TableHead>
-                                <TableHead>Status</TableHead>
-                                {/* <TableHead>Stock</TableHead> */}
-                                <TableHead className="text-right pr-4">Actions</TableHead>
+                                {visibleColumns.id && <TableHead className="w-[80px]">Id</TableHead>}
+                                {visibleColumns.image && <TableHead className="w-[80px]">Image</TableHead>}
+                                {visibleColumns.name && (
+                                    <TableHead className="min-w-[150px]">
+                                        <div className="flex items-center space-x-2 cursor-pointer hover:text-teal-600">
+                                            <span>Name</span>
+                                            <ArrowUpDown className="h-3 w-3" />
+                                        </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.category && <TableHead>Category</TableHead>}
+                                {visibleColumns.price && (
+                                    <TableHead>
+                                        <div className="flex items-center space-x-2 cursor-pointer hover:text-teal-600">
+                                            <span>Price</span>
+                                            <ArrowUpDown className="h-3 w-3" />
+                                        </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.status && <TableHead>Status</TableHead>}
+                                {visibleColumns.actions && <TableHead className="text-right pr-4">Actions</TableHead>}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -323,62 +379,74 @@ const AddMenu = () => {
                                             <TableCell className="pl-4">
                                                 <Checkbox />
                                             </TableCell>
-                                            <TableCell className="font-medium text-gray-500">#{index + 1}</TableCell>
-                                            <TableCell>
-                                                <div className="h-10 w-10 rounded-lg overflow-hidden ring-1 ring-gray-100 dark:ring-gray-800 bg-gray-100 flex items-center justify-center">
-                                                    {item.image ? (
-                                                        <img
-                                                            src={item.image}
-                                                            alt={item.name}
-                                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                                        />
-                                                    ) : (
-                                                        <span className="text-xs text-gray-400">No Img</span>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium text-gray-900 dark:text-gray-100">{item.name}</span>
-                                                    <span className="text-xs text-gray-500 truncate max-w-[200px]">{item.description}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary" className="font-normal bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-200">
-                                                    {item.category?.name || "Uncategorized"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="font-semibold text-gray-900 dark:text-gray-100">
-                                                ${item.price?.toFixed(2)}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className={cn("font-medium", stockStatus.className)}>
-                                                    {item.isAvailable ? "In Stock" : "Unavailable"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right pr-4">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-teal-600">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem
-                                                            className="cursor-pointer"
-                                                            onClick={() => handleEdit(item)}
-                                                        >
-                                                            <Pencil className="mr-2 h-4 w-4" /> Edit Details
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="cursor-pointer text-red-600 focus:text-red-600"
-                                                            onClick={() => handleDelete(item._id)}
-                                                        >
-                                                            <Trash2 className="mr-2 h-4 w-4" /> Delete Item
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
+                                            {visibleColumns.id && <TableCell className="font-medium text-gray-500">#{index + 1 + (paginationMenu.currentPage - 1) * paginationMenu.limit}</TableCell>}
+                                            {visibleColumns.image && (
+                                                <TableCell>
+                                                    <div className="h-10 w-10 rounded-lg overflow-hidden ring-1 ring-gray-100 dark:ring-gray-800 bg-gray-100 flex items-center justify-center">
+                                                        {item.image ? (
+                                                            <img
+                                                                src={item.image}
+                                                                alt={item.name}
+                                                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                            />
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400">No Img</span>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.name && (
+                                                <TableCell>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium text-gray-900 dark:text-gray-100">{item.name}</span>
+                                                        <span className="text-xs text-gray-500 truncate max-w-[200px]">{item.description}</span>
+                                                    </div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.category && (
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="font-normal bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-200">
+                                                        {item.category?.name || "Uncategorized"}
+                                                    </Badge>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.price && (
+                                                <TableCell className="font-semibold text-gray-900 dark:text-gray-100">
+                                                    ${item.price?.toFixed(2)}
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.status && (
+                                                <TableCell>
+                                                    <Badge variant="outline" className={cn("font-medium", stockStatus.className)}>
+                                                        {item.isAvailable ? "In Stock" : "Unavailable"}
+                                                    </Badge>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.actions && (
+                                                <TableCell className="text-right pr-4">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-teal-600">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem
+                                                                className="cursor-pointer"
+                                                                onClick={() => handleEdit(item)}
+                                                            >
+                                                                <Pencil className="mr-2 h-4 w-4" /> Edit Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                onClick={() => handleDelete(item._id)}
+                                                            >
+                                                                <Trash2 className="mr-2 h-4 w-4" /> Delete Item
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            )}
                                         </TableRow>
                                     )
                                 })
@@ -390,14 +458,27 @@ const AddMenu = () => {
                 {/* Pagination */}
                 <div className="p-4 border-t flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                        Showing <span className="font-medium text-foreground">{menu.length > 0 ? 1 : 0}-{menu.length}</span> of <span className="font-medium text-foreground">{menu.length}</span> items
+                        Showing <span className="font-medium text-foreground">
+                            {menu.length > 0 ? (paginationMenu.currentPage - 1) * paginationMenu.limit + 1 : 0}-
+                            {Math.min(paginationMenu.currentPage * paginationMenu.limit, paginationMenu.totalItems)}
+                        </span> of <span className="font-medium text-foreground">{paginationMenu.totalItems}</span> items
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" disabled>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={paginationMenu.currentPage === 1}
+                            onClick={() => handlePageChange(paginationMenu.currentPage - 1)}
+                        >
                             <ChevronLeft className="h-4 w-4 mr-2" />
                             Previous
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={paginationMenu.currentPage === paginationMenu.totalPages}
+                            onClick={() => handlePageChange(paginationMenu.currentPage + 1)}
+                        >
                             Next
                             <ChevronRight className="h-4 w-4 ml-2" />
                         </Button>

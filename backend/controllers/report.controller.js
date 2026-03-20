@@ -1,7 +1,7 @@
 const Order = require("../models/order.model");
-const { MenuItem } = require("../models/menu.model");
-const User = require("../models/user.model");
-const mongoose = require("mongoose");
+// const { MenuItem } = require("../models/menu.model");
+// const User = require("../models/user.model");
+// const mongoose = require("mongoose");
 
 // Helper to get date range
 const getDateRange = (filter) => {
@@ -12,12 +12,13 @@ const getDateRange = (filter) => {
         case "daily":
             startDate = new Date(now.setHours(0, 0, 0, 0));
             break;
-        case "weekly":
+        case "weekly": {
             const day = now.getDay();
             const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
             startDate = new Date(now.setDate(diff));
             startDate.setHours(0, 0, 0, 0);
             break;
+        }
         case "monthly":
             startDate = new Date(now.getFullYear(), now.getMonth(), 1);
             break;

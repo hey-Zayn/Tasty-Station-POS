@@ -25,9 +25,11 @@ import { PieChartDashboard } from '../components/PieChartDashboard'
 import { ChartRadarDotsDashboard } from '../components/ChartRadarDotsDashboard'
 import OrderTable from '../components/OrderTable'
 import { useOrderStore } from '@/store/useOrderStore'
+import { useNavigate } from 'react-router-dom'
 
 const DashboardHome = () => {
     const { stats, recentOrders, getStats, isLoading } = useOrderStore();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getStats();
@@ -42,8 +44,8 @@ const DashboardHome = () => {
             isPositive: true,
             icon: <DollarSign className="h-5 w-5" />,
             period: "All Time",
-            color: "bg-cyan-500/10 text-cyan-700",
-            css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
+            color: "bg-primary/10 text-primary",
+            css: "bg-primary/10 text-primary border border-primary/20"
         },
         {
             title: "Total Orders",
@@ -52,8 +54,8 @@ const DashboardHome = () => {
             isPositive: true,
             icon: <ShoppingBag className="h-5 w-5" />,
             period: "Cumulative",
-            color: "bg-cyan-500/10 text-cyan-700",
-            css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
+            color: "bg-primary/10 text-primary",
+            css: "bg-primary/10 text-primary border border-primary/20"
         },
         {
             title: "Average Order Value",
@@ -62,8 +64,8 @@ const DashboardHome = () => {
             isPositive: true,
             icon: <BarChart3 className="h-5 w-5" />,
             period: "Per Order",
-            color: "bg-cyan-500/10 text-cyan-700",
-            css: "bg-cyan-500/10 text-cyan-700 border border-teal-500"
+            color: "bg-primary/10 text-primary",
+            css: "bg-primary/10 text-primary border border-primary/20"
         },
         {
             title: "Pending Orders",
@@ -87,7 +89,7 @@ const DashboardHome = () => {
     if (isLoading && !stats) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -101,8 +103,8 @@ const DashboardHome = () => {
                     {quickActions.map((action, index) => (
                         <button
                             key={index}
-                            onClick={() => window.location.href = action.path}
-                            className={`${action.color} text-teal-500 dark:text-white rounded-full px-6 py-4 flex items-center justify-center gap-2 transition-all hover:bg-teal-50 shadow-sm`}
+                            onClick={() => navigate(action.path)}
+                            className={`${action.color} text-primary dark:text-white rounded-full px-6 py-4 flex items-center justify-center gap-2 hover:bg-accent hover:text-accent-foreground shadow-sm transition-all duration-300 active:scale-95`}
                         >
                             {action.icon}
                             <span className="font-medium text-sm whitespace-nowrap">{action.title}</span>
