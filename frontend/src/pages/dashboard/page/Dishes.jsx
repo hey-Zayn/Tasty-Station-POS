@@ -12,27 +12,30 @@ import { Button } from '@/components/ui/button';
 import Pagination from '@/components/ui/custom-pagination';
 
 const Dishes = () => {
-    const { recentOrders, getAllOrders, updateOrderStatus, isLoading, pagination } = useOrderStore();
+    const { recentOrders, getAllOrders, updateOrderStatus, isLoading, pagination, setupSocketListeners, cleanupSocketListeners } = useOrderStore();
     const [viewMode, setViewMode] = useState('card'); // 'card' | 'table'
     const [filter, setFilter] = useState("All");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
     useEffect(() => {
-        getAllOrders(1, 10);
+        setupSocketListeners();
+        return () => {
+            cleanupSocketListeners();
+        };
+    }, [setupSocketListeners, cleanupSocketListeners]);
+
+    useEffect(() => {
+        getAllOrders(pagination?.currentPage || 1, 10, startDate, endDate);
         const timer = setInterval(() => setCurrentTime(new Date()), 30000);
-        const poll = setInterval(() => {
-            // Only poll for the first page to see new orders
-            // If the user is on a different page, polling might be disruptive
-            // For now, let's keep it simple.
-            getAllOrders(pagination?.currentPage || 1, 10);
-        }, 15000);
+        
         return () => {
             clearInterval(timer);
-            clearInterval(poll);
         };
-    }, [getAllOrders, pagination?.currentPage]);
+    }, [getAllOrders, pagination?.currentPage, startDate, endDate]);
 
     // Handle initial selection or clearing if orders change
     useEffect(() => {
@@ -62,7 +65,7 @@ const Dishes = () => {
     }, [recentOrders, searchTerm, filter]);
 
     const handlePageChange = (newPage) => {
-        getAllOrders(newPage, 10);
+        getAllOrders(newPage, 10, startDate, endDate);
     };
 
     const stats = useMemo(() => ({
@@ -75,7 +78,7 @@ const Dishes = () => {
     }), [recentOrders]);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0F1113] p-4 md:p-8 overflow-x-hidden transition-colors duration-500">
+        <div className="min-h-screen bg-background p-4 md:p-8 overflow-x-hidden transition-colors duration-500">
             <div className="max-w-[1800px] mx-auto">
                 <OrderTerminalHeader
                     searchTerm={searchTerm}
@@ -84,9 +87,13 @@ const Dishes = () => {
                     setViewMode={setViewMode}
                     filter={filter}
                     setFilter={setFilter}
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
                     stats={stats}
                     isLoading={isLoading}
-                    onRefresh={getAllOrders}
+                    onRefresh={() => getAllOrders(pagination?.currentPage || 1, 10, startDate, endDate)}
                     currentTime={currentTime}
                 />
 
@@ -100,17 +107,17 @@ const Dishes = () => {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="flex flex-col items-center justify-center  h-[50vh] space-y-8"
+                                    className="flex flex-col items-center justify-center h-[50vh] space-y-8"
                                 >
                                     <div className="relative">
-                                        <div className="absolute inset-0 bg-teal-500 blur-[80px] opacity-20 animate-pulse" />
-                                        <div className="relative bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-2xl ring-1 ring-black/5">
-                                            <Loader2 className="h-12 w-12 animate-spin text-teal-600" />
+                                        <div className="absolute inset-0 bg-primary blur-[80px] opacity-10 animate-pulse" />
+                                        <div className="relative bg-card p-6 rounded-xl shadow-lg border">
+                                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
                                         </div>
                                     </div>
                                     <div className="text-center">
-                                        <h3 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white uppercase">Initializing Terminal</h3>
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.3em] mt-3">Connecting to secure order vault...</p>
+                                        <h3 className="text-xl font-bold tracking-tight text-foreground">Loading Orders</h3>
+                                        <p className="text-sm font-medium text-muted-foreground mt-2">Connecting to data...</p>
                                     </div>
                                 </Motion.div>
                             ) : filteredOrders.length === 0 ? (
@@ -119,18 +126,18 @@ const Dishes = () => {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
-                                    className="flex flex-col items-center justify-center h-[50vh] bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-[3.5rem] border-2 border-dashed border-gray-100 dark:border-gray-800"
+                                    className="flex flex-col items-center justify-center h-[50vh] bg-muted/30 backdrop-blur-md rounded-xl border border-dashed border-border"
                                 >
-                                    <div className="p-8 bg-amber-50 dark:bg-amber-900/20 rounded-full text-amber-600 mb-8 font-bold flex items-center justify-center shadow-inner">
-                                        <AlertCircle size={48} />
+                                    <div className="p-6 bg-amber-500/10 rounded-full text-amber-500 mb-6 font-semibold flex items-center justify-center shadow-sm">
+                                        <AlertCircle size={40} />
                                     </div>
-                                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter uppercase italic">Clear Skies</h3>
-                                    <p className="text-gray-400 font-bold text-sm uppercase tracking-[0.25em]">No tickets found in the current flight path</p>
+                                    <h3 className="text-2xl font-bold text-foreground mb-2 tracking-tight">No Orders Found</h3>
+                                    <p className="text-muted-foreground font-medium text-sm">There are no orders matching your current filters</p>
                                     <Button
                                         onClick={() => { setFilter("All"); setSearchTerm(""); }}
-                                        className="mt-10 px-8 h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-teal-600/20 transition-all hover:scale-105"
+                                        className="mt-8 px-6 h-10 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold text-sm shadow-sm transition-all hover:-translate-y-0.5"
                                     >
-                                        Reset All Filters
+                                        Clear Filters
                                     </Button>
                                 </Motion.div>
                             ) : (
@@ -174,8 +181,7 @@ const Dishes = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    onClick={() => setSelectedOrder(null)}
-                                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] lg:hidden"
+                                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
                                 />
 
                                 <Motion.aside

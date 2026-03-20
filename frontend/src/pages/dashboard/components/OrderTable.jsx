@@ -159,7 +159,7 @@ const OrderTable = ({ orders = [] }) => {
                                     <TableRow key={order._id} className="hover:bg-muted/50 transition-colors">
                                         <TableCell className="font-medium">
                                             <div className="flex items-center gap-2">
-                                                <ShoppingCart className="h-4 w-4 text-teal-600" />
+                                                <ShoppingCart className="h-4 w-4 text-primary" />
                                                 <span className="text-xs font-mono">{order.orderId}</span>
                                             </div>
                                         </TableCell>
@@ -192,7 +192,7 @@ const OrderTable = ({ orders = [] }) => {
                                                 <span>{order.paymentMethod}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-right font-bold text-teal-700 dark:text-teal-400">
+                                        <TableCell className="text-right font-bold text-primary">
                                             Rs {order.totalAmount?.toLocaleString()}
                                         </TableCell>
                                         <TableCell>

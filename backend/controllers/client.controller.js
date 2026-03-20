@@ -1,5 +1,5 @@
 const Client = require("../models/client.model");
-const Order = require("../models/order.model");
+// const Order = require("../models/order.model");
 
 // Get all clients with summary statistics
 exports.getAllClients = async (req, res) => {

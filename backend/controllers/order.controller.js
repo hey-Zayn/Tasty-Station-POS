@@ -129,18 +129,23 @@ const createOrder = async (req, res, next) => {
 // ... (getAllOrders, getOrderStats, getOrderById, getKitchenOrders remain unchanged)
 const getAllOrders = async (req, res, next) => {
     try {
-        const { type, status, date, page = 1, limit = 10 } = req.query;
+        const { type, status, startDate, endDate, page = 1, limit = 10 } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
         let query = {};
 
         if (type) query.type = type;
         if (status) query.status = status;
 
-        if (date) {
-            const startDate = new Date(date);
-            const endDate = new Date(date);
-            endDate.setDate(endDate.getDate() + 1);
-            query.createdAt = { $gte: startDate, $lt: endDate };
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) {
+                query.createdAt.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                query.createdAt.$lte = end;
+            }
         }
 
         const totalOrders = await Order.countDocuments(query);

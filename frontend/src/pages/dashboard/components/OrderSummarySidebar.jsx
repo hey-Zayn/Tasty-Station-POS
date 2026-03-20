@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 
@@ -65,149 +66,210 @@ const OrderSummarySidebar = ({ order, onClose, onUpdateStatus }) => {
 
     return (
         <Motion.div
-            initial={{ opacity: 0, x: 40, scale: 0.95 }}
+            initial={{ opacity: 0, x: 40, scale: 0.97 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            className="h-full flex flex-col bg-white dark:bg-[#16191C] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white/20 dark:border-gray-800 overflow-hidden relative"
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="h-full flex flex-col bg-card rounded-2xl border border-border/60 overflow-hidden relative"
         >
-            {/* Header */}
-            <div className="p-8 pb-4 space-y-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Orders ID</p>
-                        <h2 className="text-3xl font-[1000] tracking-tighter text-gray-900 dark:text-white">
-                            #{String(order.orderId || '').split('-').pop()?.slice(-6) || 'N/A'}
-                        </h2>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Table</p>
-                        <h2 className="text-3xl font-[1000] tracking-tighter text-teal-600">
-                            {typeof order.table === 'object' ? order.table?.name : (order.table || 'T1')}
-                        </h2>
-                    </div>
-                </div>
 
-                {/* Progress Bar */}
-                <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400">
-                        <span>Progress</span>
-                        <span className="text-teal-600">{currentStatus}</span>
-                    </div>
-                    <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <Motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${statusProgress[currentStatus]}%` }}
-                            className={cn(
-                                "h-full transition-all duration-500",
-                                currentStatus === 'Pending' && "bg-amber-500",
-                                currentStatus === 'Preparing' && "bg-orange-500",
-                                currentStatus === 'Ready' && "bg-cyan-500",
-                                currentStatus === 'Completed' && "bg-emerald-500",
-                                currentStatus === 'Cancelled' && "bg-rose-500"
-                            )}
-                        />
-                    </div>
-                </div>
+            {/* ── Header ── */}
+            <div className="px-[18px] pt-4 pb-[14px] border-b border-border/50 flex-shrink-0">
 
+                {/* Close */}
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={onClose}
-                    className="absolute top-6 right-6 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="absolute top-[14px] right-[14px] w-7 h-7 rounded-md hover:bg-muted/60 border border-border/40"
                 >
-                    <X size={20} />
+                    <X className="w-3.5 h-3.5" />
                 </Button>
-            </div>
 
-            {/* Content Scroll Area */}
-            <div className="grow overflow-y-auto px-8 py-2 space-y-8 custom-scrollbar">
-                {/* Items List */}
-                <div className="space-y-6">
-                    {order.items?.map((item, i) => (
-                        <div key={i} className="flex gap-4 group">
-                            <div className="relative shrink-0">
-                                <div className="w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-900/10 flex items-center justify-center overflow-hidden border border-orange-100/50">
-                                    {/* Placeholder for dish image */}
-                                    <UtensilsCrossed size={24} className="text-orange-500/50" />
-                                </div>
-                            </div>
-                            <div className="grow space-y-1 py-1">
-                                <div className="flex justify-between items-start">
-                                    <p className="text-base font-extrabold text-gray-900 dark:text-white leading-tight capitalize">
-                                        {item.name}
-                                    </p>
-                                    <p className="text-base font-black text-gray-900 dark:text-white ml-4">
-                                        Rs {(item.price * item.quantity).toLocaleString()}
-                                    </p>
-                                </div>
-                                <p className="text-xs font-bold text-gray-400">
-                                    Note : {item.note || 'Regular'}
-                                </p>
-                                <div className="flex items-center gap-2 pt-1">
-                                    <span className="text-xs font-black text-teal-600">Rs {item.price?.toLocaleString()}</span>
-                                    <span className="text-[10px] font-bold text-gray-300">x</span>
-                                    <span className="text-xs font-black text-gray-500">{item.quantity}</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <Separator className="bg-gray-100/50 dark:bg-gray-800/50" />
-
-                {/* Sub-Summary */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Items({order.items?.length})</span>
-                        <span className="text-base font-black text-gray-900 dark:text-white">Rs {subtotal.toLocaleString()}</span>
+                {/* Order ID + Table */}
+                <div className="flex items-start justify-between mb-[14px] pr-9">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em]">
+                            Order ID
+                        </span>
+                        <span className="font-mono text-[20px] font-bold text-foreground tracking-tight leading-none">
+                            #{String(order.orderId || '').split('-').pop()?.slice(-6) || 'N/A'}
+                        </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Tax (10%)</span>
-                        <span className="text-base font-black text-gray-900 dark:text-white">Rs {tax.toLocaleString()}</span>
-                    </div>
-                    <div className="border-t-2 border-dashed border-gray-100 dark:border-gray-800 pt-6 flex justify-between items-center">
-                        <span className="text-base font-bold text-gray-400 uppercase tracking-widest">Total</span>
-                        <span className="text-4xl font-[1000] text-gray-900 dark:text-white tracking-tighter">
-                            Rs {total.toLocaleString()}
+                    <div className="flex flex-col gap-1 items-end">
+                        <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em]">
+                            Table
+                        </span>
+                        <span className="text-[20px] font-bold text-foreground leading-none">
+                            {typeof order.table === 'object' ? order.table?.name : (order.table || '—')}
                         </span>
                     </div>
                 </div>
 
-                {/* Payment Methods */}
-                <div className="space-y-4">
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Payment Methods</p>
-                    {/* ... (keep payment methods logic) */}
+                {/* Progress */}
+                <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em]">
+                            Progress
+                        </span>
+                        <span className={cn(
+                            "text-[10px] font-bold uppercase tracking-[0.06em]",
+                            currentStatus === 'Pending' && "text-amber-500",
+                            currentStatus === 'Preparing' && "text-orange-500",
+                            currentStatus === 'Ready' && "text-cyan-500",
+                            currentStatus === 'Completed' && "text-emerald-500",
+                            currentStatus === 'Cancelled' && "text-rose-500",
+                        )}>
+                            {currentStatus}
+                        </span>
+                    </div>
+                    <div className="h-[3px] w-full bg-muted/60 rounded-full overflow-hidden">
+                        <Motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${statusProgress[currentStatus]}%` }}
+                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                            className={cn(
+                                "h-full rounded-full",
+                                currentStatus === 'Pending' && "bg-amber-500",
+                                currentStatus === 'Preparing' && "bg-orange-500",
+                                currentStatus === 'Ready' && "bg-cyan-500",
+                                currentStatus === 'Completed' && "bg-emerald-500",
+                                currentStatus === 'Cancelled' && "bg-rose-500",
+                            )}
+                        />
+                    </div>
                 </div>
             </div>
 
-            {/* Actions Footer */}
-            <div className="p-8 pt-4">
+            {/* ── Scrollable Body ── */}
+            <ScrollArea className="flex-1 min-h-0">
+                <div className="px-[18px] py-4 flex flex-col gap-4">
+
+                    {/* Items */}
+                    <div>
+                        <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em] mb-2">
+                            Live Ticket Items
+                        </p>
+                        <div className="flex flex-col">
+                            {order.items?.map((item, i) => (
+                                <Motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.04, duration: 0.18 }}
+                                    className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg border border-transparent hover:bg-muted/40 hover:border-border/40 transition-all duration-150 group"
+                                >
+                                    {/* Icon + qty badge */}
+                                    <div className="relative shrink-0">
+                                        <div className="w-9 h-9 rounded-lg bg-muted/50 border border-border/50 flex items-center justify-center">
+                                            <UtensilsCrossed className="w-[14px] h-[14px] text-muted-foreground/60" />
+                                        </div>
+                                        <div className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-foreground text-background flex items-center justify-center text-[9px] font-bold leading-none">
+                                            {item.quantity}
+                                        </div>
+                                    </div>
+
+                                    {/* Name + note */}
+                                    <div className="flex-1 flex flex-col gap-0.5 min-w-0">
+                                        <span className="text-[12px] font-semibold text-foreground leading-none truncate capitalize">
+                                            {item.name}
+                                        </span>
+                                        <span className="text-[10px] text-muted-foreground/60 font-medium leading-none truncate">
+                                            {item.note || 'Regular Preparation'}
+                                        </span>
+                                    </div>
+
+                                    {/* Price */}
+                                    <span className="font-mono text-[12px] font-semibold text-foreground shrink-0 tabular-nums">
+                                        Rs {(item.price * item.quantity).toLocaleString()}
+                                    </span>
+                                </Motion.div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Bill Summary */}
+                    <div>
+                        <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em] mb-2">
+                            Bill Summary
+                        </p>
+                        <div className="bg-muted/30 border border-border/50 rounded-lg px-[14px] py-3 flex flex-col gap-2.5">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[11px] font-medium text-muted-foreground">Subtotal</span>
+                                <span className="font-mono text-[12px] font-semibold text-foreground tabular-nums">
+                                    Rs {subtotal.toLocaleString()}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-[11px] font-medium text-muted-foreground">Tax (GST 10%)</span>
+                                <span className="font-mono text-[12px] font-semibold text-foreground tabular-nums">
+                                    Rs {tax.toLocaleString()}
+                                </span>
+                            </div>
+                            <div className="h-px bg-border/50" />
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em]">
+                                    Total
+                                </span>
+                                <span className="font-mono text-[18px] font-bold text-foreground tabular-nums tracking-tight">
+                                    Rs {total.toLocaleString()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div>
+                        <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.08em] mb-2">
+                            Payment Method
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/50 bg-transparent hover:bg-muted/40 transition-colors">
+                                <Wallet className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
+                                <span className="text-[11px] font-600 text-muted-foreground font-semibold">Cash</span>
+                            </button>
+                            <button className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-muted/30 hover:bg-muted/50 transition-colors">
+                                <CreditCard className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
+                                <span className="text-[11px] font-semibold text-muted-foreground">Digital</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </ScrollArea>
+
+            {/* ── Footer Actions ── */}
+            <div className="px-[18px] py-[14px] border-t border-border/50 flex flex-col gap-2 flex-shrink-0 bg-card">
                 <Button
                     onClick={() => action && onUpdateStatus(order._id, action.next)}
                     disabled={!action}
                     className={cn(
-                        "w-full h-16 rounded-[1.5rem] font-[1000] text-lg uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98]",
-                        action ? action.color : "bg-emerald-500 text-white shadow-emerald-500/40"
+                        "w-full h-9 rounded-lg font-semibold text-[12px] tracking-wide shadow-none transition-all",
+                        action ? action.color : "bg-emerald-500 hover:bg-emerald-600 text-white"
                     )}
                 >
-                    {action ? action.label : 'Order Completed'}
+                    {action ? action.label : 'Order Fully Processed'}
                 </Button>
 
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-2 gap-2">
                     <Button
-                        variant="ghost"
-                        className="h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest text-gray-400 hover:text-rose-600"
+                        variant="outline"
                         onClick={() => onUpdateStatus(order._id, 'Cancelled')}
                         disabled={order.status === 'Cancelled'}
+                        className="h-8 rounded-lg text-[11px] font-medium border-border/60 text-muted-foreground hover:text-destructive hover:bg-destructive/8 hover:border-destructive/30 shadow-none transition-colors"
                     >
-                        <XCircle size={16} className="mr-2" />
-                        Cancel Order
+                        <XCircle className="w-3.5 h-3.5 mr-1.5" />
+                        Void Ticket
                     </Button>
-                    <Button variant="ghost" className="h-12 rounded-2xl font-black uppercase text-[10px] tracking-widest text-gray-400 hover:text-teal-600">
-                        <Printer size={16} className="mr-2" />
-                        Print Order
+                    <Button
+                        variant="outline"
+                        className="h-8 rounded-lg text-[11px] font-medium border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/50 shadow-none transition-colors"
+                    >
+                        <Printer className="w-3.5 h-3.5 mr-1.5" />
+                        Print Bill
                     </Button>
                 </div>
             </div>
+
         </Motion.div>
     );
 };

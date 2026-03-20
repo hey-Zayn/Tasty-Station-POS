@@ -19,17 +19,17 @@ import {
     ShoppingCart,
     TrendingUp,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/useAuthStore'
 
 const AdminSidebar = () => {
 
     const { logout } = useAuthStore()
+    const location = useLocation()
 
 
     const [collapsed, setCollapsed] = useState(false)
-    const [activeItem, setActiveItem] = useState('dashboard')
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 0, link: '/admin' },
@@ -52,7 +52,7 @@ const AdminSidebar = () => {
 
     return (
         <aside className={cn(
-            "sticky top-16 flex flex-col h-[calc(100vh-64px)] bg-background border-r transition-all duration-300",
+            "flex flex-col h-full bg-background border-r transition-all duration-300",
             collapsed ? "w-20" : "w-64"
         )}>
             {/* Header */}
@@ -63,7 +63,7 @@ const AdminSidebar = () => {
                 )}>
                     {!collapsed && (
                         <div className="flex items-center gap-3">
-                            <div className="size-9 bg-teal-700 rounded-lg flex items-center justify-center shadow-lg">
+                            <div className="size-9 bg-primary rounded-lg flex items-center justify-center shadow-lg transition-transform hover:rotate-6">
                                 <Hamburger className="size-5 text-primary-foreground" />
                             </div>
                             <div>
@@ -73,8 +73,8 @@ const AdminSidebar = () => {
                         </div>
                     )}
                     {collapsed && (
-                        <div className="size-10 bg-teal-700 rounded-lg flex items-center justify-center">
-                            <Hamburger className="size-5 text-primary-foreground hidden " />
+                        <div className="size-10 bg-primary rounded-lg flex items-center justify-center shadow-md">
+                            <Hamburger className="size-5 text-primary-foreground" />
                         </div>
                     )}
                     <button
@@ -96,17 +96,17 @@ const AdminSidebar = () => {
                 <div className="space-y-2">
                     {menuItems.map((item) => {
                         const Icon = item.icon
-                        const isActive = activeItem === item.id
+                        const isActive = location.pathname === item.link || 
+                                       (item.link === '/admin' && location.pathname === '/admin/')
 
                         return (
                             <Link key={item.id} to={item.link} className=''>
                                 <div
-                                    onClick={() => setActiveItem(item.id)}
                                     className={cn(
                                         "w-full flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer",
                                         "hover:bg-muted hover:text-foreground",
                                         isActive
-                                            ? " text-teal-700  border border-teal-600 shadow-sm"
+                                            ? " text-primary  border border-primary/50 shadow-sm transition-all"
                                             : "text-muted-foreground",
 
                                     )}
@@ -114,15 +114,13 @@ const AdminSidebar = () => {
                                     <div className="relative">
                                         <Icon className={cn(
                                             "size-5 transition-transform",
-                                            isActive && "text-teal-700",
+                                            isActive && "text-primary",
                                             collapsed && "mx-auto"
                                         )} />
                                         {item.badge > 0 && (
                                             <span className={cn(
                                                 "absolute -top-1.5 -right-1.5 size-5 rounded-full text-xs font-medium flex items-center justify-center",
-                                                isActive
-                                                    ? "bg-cyan-700 text-primary-foreground"
-                                                    : "bg-cyan-700 text-primary-foreground"
+                                                "bg-primary text-primary-foreground shadow-sm"
                                             )}>
                                                 {item.badge}
                                             </span>
@@ -132,7 +130,7 @@ const AdminSidebar = () => {
                                         <>
                                             <span className="font-medium flex-1 text-left">{item.label}</span>
                                             {isActive && (
-                                                <div className="size-1.5 rounded-full bg-cyan-700/50 animate-pulse" />
+                                                <div className="size-1.5 rounded-full bg-primary/50 animate-pulse" />
                                             )}
                                         </>
                                     )}
@@ -147,12 +145,11 @@ const AdminSidebar = () => {
             <div className="p-4 space-y-1">
                 {bottomItems.map((item) => {
                     const Icon = item.icon
-                    const isActive = activeItem === item.id
+                    const isActive = location.pathname === item.link
 
                     return (
                         <Link key={item.id} to={item.link}>
                             <div
-                                onClick={() => setActiveItem(item.id)}
                                 className={cn(
                                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer",
                                     "hover:bg-muted hover:text-foreground",

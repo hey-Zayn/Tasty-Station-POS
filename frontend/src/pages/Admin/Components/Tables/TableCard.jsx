@@ -7,22 +7,22 @@ const TableCard = ({ table, onClick }) => {
     // Status configurations
     const statusConfig = {
         "Available": {
-            color: "bg-teal-50 border-teal-200",
+            color: "bg-teal-500/10 border-teal-500/50 backdrop-blur-xl",
             badge: "bg-teal-100 text-teal-700 hover:bg-teal-200",
-            shadow: "shadow-sm hover:shadow-md",
-            chair: "bg-teal-200 border-teal-300"
+            shadow: "shadow-[0_0_15px_rgba(20,184,166,0.1)] hover:shadow-[0_0_25px_rgba(20,184,166,0.2)]",
+            chair: "bg-teal-200/50 border-teal-300/50 backdrop-blur-sm"
         },
         "Occupied": {
-            color: "bg-red-50 border-red-200",
+            color: "bg-red-500/10 border-red-500/50 backdrop-blur-xl",
             badge: "bg-red-100 text-red-700 hover:bg-red-200",
-            shadow: "shadow-sm hover:shadow-md ring-1 ring-red-200",
-            chair: "bg-red-200 border-red-300"
+            shadow: "shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_25px_rgba(239,68,68,0.2)]",
+            chair: "bg-red-200/50 border-red-300/50 backdrop-blur-sm"
         },
         "Reserved": {
-            color: "bg-amber-50 border-amber-200",
+            color: "bg-amber-500/10 border-amber-500/50 backdrop-blur-xl",
             badge: "bg-amber-100 text-amber-800 hover:bg-amber-200",
-            shadow: "shadow-sm hover:shadow-md ring-1 ring-amber-200",
-            chair: "bg-amber-200 border-amber-300"
+            shadow: "shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_25px_rgba(245,158,11,0.2)]",
+            chair: "bg-amber-200/50 border-amber-300/50 backdrop-blur-sm"
         }
     };
 
@@ -32,13 +32,11 @@ const TableCard = ({ table, onClick }) => {
     const getTableDimensions = (capacity) => {
         // Base size for 2 people
         if (capacity <= 2) return { width: "w-24", height: "h-24", distribution: { top: 1, bottom: 1, left: 0, right: 0 } };
-        if (capacity <= 4) return { width: "w-32", height: "h-24", distribution: { top: 2, bottom: 2, left: 0, right: 0 } };
-        // Increase width for more people
-        if (capacity <= 6) return { width: "w-40", height: "h-28", distribution: { top: 2, bottom: 2, left: 1, right: 1 } };
-        if (capacity <= 8) return { width: "w-48", height: "h-28", distribution: { top: 3, bottom: 3, left: 1, right: 1 } };
-        if (capacity <= 10) return { width: "w-56", height: "h-32", distribution: { top: 4, bottom: 4, left: 1, right: 1 } };
+        if (capacity <= 4) return { width: "w-32", height: "h-32", distribution: { top: 2, bottom: 2, left: 0, right: 0 } };
+        if (capacity <= 6) return { width: "w-48", height: "h-32", distribution: { top: 3, bottom: 3, left: 0, right: 0 } };
+        if (capacity <= 8) return { width: "w-64", height: "h-32", distribution: { top: 4, bottom: 4, left: 0, right: 0 } };
         // Large table
-        return { width: "w-64", height: "h-32", distribution: { top: Math.ceil((capacity - 2) / 2), bottom: Math.ceil((capacity - 2) / 2), left: 1, right: 1 } };
+        return { width: "w-72", height: "h-40", distribution: { top: 5, bottom: 5, left: 0, right: 0 } };
     };
 
     const dimensions = getTableDimensions(table.capacity);
@@ -90,7 +88,7 @@ const TableCard = ({ table, onClick }) => {
             onClick={() => onClick(table)}
             className="flex flex-col items-center  justify-center p-8 cursor-pointer group hover:scale-[1.02] transition-transform duration-200"
         >
-            <div className="relative ">
+            <div className="relative">
                 {/* Chairs */}
                 {renderChairRow(dimensions.distribution.top, 'top')}
                 {renderChairRow(dimensions.distribution.bottom, 'bottom')}
@@ -99,21 +97,29 @@ const TableCard = ({ table, onClick }) => {
 
                 {/* Table Surface */}
                 <div className={cn(
-                    "relative rounded-xl border-2   flex flex-col items-center justify-center transition-colors duration-300 z-10",
+                    "relative rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 z-10",
                     dimensions.width,
                     dimensions.height,
                     config.color,
-                    config.shadow
+                    config.shadow,
+                    "group-hover:translate-y-[-2px]"
                 )}>
-                    <span className="font-bold text-gray-700 text-lg mb-0.5">{table.name}</span>
-                    <div className="flex items-center text-xs font-medium text-gray-500 bg-white/50 px-1.5 py-0.5 rounded-full">
+                    <span className="font-bold text-foreground text-lg mb-0.5">{table.name}</span>
+                    <div className="flex items-center text-xs font-medium text-muted-foreground bg-background/50 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-border/50">
                         <Users className="w-3 h-3 mr-1" />
                         {table.capacity}
                     </div>
 
                     {/* Status Indicator Dot */}
                     <div className={cn(
-                        "absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white shadow-sm",
+                        "absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-background shadow-sm animate-pulse shadow-teal-500/20",
+                        table.status === 'Available' ? "bg-teal-500" :
+                            table.status === 'Occupied' ? "bg-red-500" : "bg-amber-500"
+                    )} />
+
+                    {/* Subtle internal glow matching status color */}
+                    <div className={cn(
+                        "absolute inset-0 opacity-20 -z-10 blur-xl",
                         table.status === 'Available' ? "bg-teal-500" :
                             table.status === 'Occupied' ? "bg-red-500" : "bg-amber-500"
                     )} />

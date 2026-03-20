@@ -1,79 +1,125 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Clock, User, Hash } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from "@/lib/utils";
+import { formatDistanceToNow, differenceInMinutes } from 'date-fns';
+import { cn } from '@/lib/utils';
 
-// eslint-disable-next-line no-unused-vars
-const KitchenOrderCard = ({ order, onUpdate, nextStatus, actionLabel, actionIcon: ActionIconComponent }) => {
+const KitchenOrderCard = ({ order, onUpdate, nextStatus, actionLabel }) => {
+    const allItems = order.items || [];
+    const orderAge = order.createdAt
+        ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: false })
+        : '—';
+    const ageMinutes = order.createdAt
+        ? differenceInMinutes(new Date(), new Date(order.createdAt))
+        : 0;
+    const isUrgent = ageMinutes >= 15;
+
     return (
-        <Card className="group overflow-hidden border-gray-100 dark:border-gray-800 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 shadow-sm hover:shadow-md rounded-2xl bg-white dark:bg-[#1A1C1E]">
-            <CardHeader className="p-4 space-y-3">
-                <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                            <span className={cn(
-                                "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider",
-                                order.type === 'Dine-in' ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30" : "bg-blue-50 text-blue-600 dark:bg-blue-950/30"
+        <div className={cn(
+            "bg-card border rounded-[10px] overflow-hidden transition-colors duration-100",
+            isUrgent
+                ? "border-amber-300/70 dark:border-amber-700/50"
+                : "border-border/50 hover:border-border/80"
+        )}>
+
+            {/* Card Header */}
+            <div className={cn(
+                "px-3 py-2.5 border-b border-border/40",
+                isUrgent && "bg-amber-50/60 dark:bg-amber-900/10"
+            )}>
+                <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[13px] font-bold text-foreground leading-none truncate">
+                        {order.clientName || 'Guest'}
+                    </span>
+                    <span className="font-mono text-[10px] font-semibold text-muted-foreground/50 shrink-0 ml-2">
+                        #{String(order.orderId || '').split('-').pop()?.slice(-4) || '0000'}
+                    </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    {order.orderType && (
+                        <span className="inline-flex items-center h-[15px] px-[5px] rounded-[3px] bg-muted/60 border border-border/40 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.06em]">
+                            {order.orderType}
+                        </span>
+                    )}
+                    <span className={cn(
+                        "flex items-center gap-1 text-[10px] font-medium",
+                        isUrgent ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground/50"
+                    )}>
+                        <svg width="9" height="9" viewBox="0 0 10 10" fill="none"
+                            stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+                            <circle cx="5" cy="5" r="3.5" />
+                            <path d="M5 3v2l1 1" />
+                        </svg>
+                        {orderAge}
+                    </span>
+                </div>
+            </div>
+
+            {/* Items — all visible, no truncation */}
+            <div className="divide-y divide-border/30">
+                {allItems.map((item, i) => {
+                    const name = typeof item.product === 'object'
+                        ? item.product?.name
+                        : (item.name || 'Unknown');
+                    const note = item.note || item.specialInstructions || null;
+
+                    return (
+                        <div key={i} className="flex items-center gap-0 px-3 py-[7px]">
+
+                            {/* Qty box */}
+                            <div className={cn(
+                                "w-7 h-7 rounded-[6px] flex items-center justify-center font-mono text-[11px] font-extrabold shrink-0 border",
+                                isUrgent
+                                    ? "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/40"
+                                    : "bg-muted/50 text-foreground border-border/50"
                             )}>
-                                {order.type}
-                            </span>
-                            <Badge variant="outline" className="font-bold text-[10px] h-5 border-gray-100 dark:border-gray-800 px-1.5 flex items-center gap-1">
-                                <Clock className="size-2.5" />
-                                {format(new Date(order.createdAt), 'HH:mm')}
-                            </Badge>
-                        </div>
-                        <CardTitle className="text-lg font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
-                            <span className="text-gray-400 text-sm font-medium">#</span>
-                            {order.orderId?.split('-').pop().slice(-4) || order.orderId}
-                        </CardTitle>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3 text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900 px-2 py-1 rounded-lg">
-                        <Hash className="size-3 text-teal-500" />
-                        <span>{order.table?.name || "Counter"}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900 px-2 py-1 rounded-lg">
-                        <User className="size-3 text-teal-500" />
-                        <span className="truncate max-w-[100px]">{order.clientName}</span>
-                    </div>
-                </div>
-            </CardHeader>
-
-            <Separator className="bg-gray-50 dark:bg-gray-800" />
-
-            <CardContent className="p-4 space-y-4">
-                <div className="space-y-2">
-                    {order.items.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center py-0.5">
-                            <div className="flex items-center gap-3">
-                                <div className="size-6 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-[10px] flex items-center justify-center border border-gray-200 dark:border-gray-700">
-                                    {item.quantity}
-                                </div>
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight capitalize">
-                                    {item.name}
-                                </span>
+                                {item.quantity}
                             </div>
-                        </div>
-                    ))}
-                </div>
 
-                <div className="pt-2">
-                    <Button
-                        onClick={() => onUpdate(order._id, nextStatus)}
-                        className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold uppercase tracking-widest text-[10px] h-11 rounded-xl shadow-lg shadow-teal-600/10 flex items-center justify-center gap-2 transition-all active:scale-95"
-                    >
-                        <ActionIconComponent className="size-3.5" />
-                        {actionLabel}
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+                            {/* Item name + note */}
+                            <div className="flex flex-col gap-0.5 flex-1 min-w-0 px-2.5">
+                                <span className="text-[12px] font-semibold text-foreground capitalize leading-tight">
+                                    {name}
+                                </span>
+                                {note && (
+                                    <span className="text-[10px] text-muted-foreground/60 font-medium leading-none truncate">
+                                        {note}
+                                    </span>
+                                )}
+                            </div>
+
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Footer */}
+            <div className={cn(
+                "flex items-center justify-between px-3 py-2 border-t border-border/40",
+                isUrgent
+                    ? "bg-amber-50/40 dark:bg-amber-900/10"
+                    : "bg-muted/20"
+            )}>
+                <span className={cn(
+                    "text-[10px] font-semibold",
+                    isUrgent
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-muted-foreground/50"
+                )}>
+                    {isUrgent ? '⚠ Waiting long' : `${allItems.length} item${allItems.length !== 1 ? 's' : ''}`}
+                </span>
+                <button
+                    onClick={() => onUpdate(order._id, nextStatus)}
+                    className={cn(
+                        "flex items-center gap-1 h-[26px] px-2.5 rounded-[6px] border-none text-[11px] font-semibold cursor-pointer transition-opacity",
+                        isUrgent
+                            ? "bg-amber-500 hover:bg-amber-500/85 text-white"
+                            : "bg-foreground hover:bg-foreground/85 text-background"
+                    )}
+                >
+                    {actionLabel} →
+                </button>
+            </div>
+
+        </div>
     );
 };
 

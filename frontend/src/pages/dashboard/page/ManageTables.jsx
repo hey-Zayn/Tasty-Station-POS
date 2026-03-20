@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useTableStore } from '@/store/useTableStore';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Filter, Grid2x2Check, Calendar, Users, Clock, MoreVertical, Edit, Trash2, LayoutGrid, Armchair, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Search, Filter, Grid2x2Check, Calendar, Users, Clock, MoreVertical, Edit, Trash2, LayoutGrid, Armchair, XCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import TableCard from '../../Admin/Components/Tables/TableCard';
 import AddTableModal from '../../Admin/Components/Tables/AddTableModal';
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,9 +16,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
-
 
 const ManageTables = () => {
     const { tables, getTables, deleteTable, reserveTable, cancelReservation, isLoading } = useTableStore();
@@ -54,12 +53,14 @@ const ManageTables = () => {
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (table) => {
+    const handleEditClick = (table, e) => {
+        if (e) e.stopPropagation();
         setEditingTable(table);
         setIsModalOpen(true);
     };
 
-    const handleDeleteClick = async (id) => {
+    const handleDeleteClick = async (id, e) => {
+        if (e) e.stopPropagation();
         if (window.confirm("Are you sure you want to delete this table?")) {
             await deleteTable(id);
             if (selectedTable?._id === id) setSelectedTable(null);
@@ -68,12 +69,12 @@ const ManageTables = () => {
 
     const handleTableClick = (table) => {
         setSelectedTable(table);
-        // Reset booking form when switching tables
+        // Reset booking form
         setBookingForm({
             bookedBy: "",
             contact: "",
             guests: 1,
-            date: new Date().toISOString().slice(0, 16), // Default to now
+            date: new Date().toISOString().slice(0, 16),
             notes: ""
         });
     };
@@ -85,8 +86,7 @@ const ManageTables = () => {
         const result = await reserveTable(selectedTable._id, bookingForm);
         if (result.success) {
             alert("Table reserved successfully!");
-            // Optionally refresh or update local state logic handles it via store
-            getTables(); // Refresh to ensure latest state
+            getTables();
         } else {
             alert("Failed to reserve: " + result.message);
         }
@@ -105,50 +105,48 @@ const ManageTables = () => {
     };
 
     return (
-        <div className="flex h-[calc(100vh-5rem)] bg-gray-50 dark:bg-black/20 overflow-hidden">
-
+        <div className="flex w-full h-full bg-background overflow-hidden relative">
             {/* Left Main Content */}
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden border-r border-border/50">
                 {/* Header */}
-                <div className="px-8 py-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/50 dark:bg-black/20 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <LayoutGrid className="w-6 h-6 text-teal-600" />
-                            Table Management (Cashier)
+                <div className="px-8 py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/50 bg-card/30 backdrop-blur-sm shrink-0">
+                    <div className="space-y-1">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                            Floor <span className="text-teal-600 dark:text-teal-400">Plan</span>
                         </h1>
-                        <p className="text-sm text-gray-500 mt-1">
-                            {filteredTables.length} tables found • {tables.filter(t => t.status === 'Occupied').length} Occupied
-                        </p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.3em]">POS Control Center</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-teal-600 transition-colors" />
+
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search tables..."
-                                className="pl-9 w-64 bg-white dark:bg-gray-900 rounded-full border-gray-200 focus:border-teal-500 transition-all"
+                                className="pl-9 h-10 bg-background/50 border-border shadow-sm focus:ring-teal-500/10"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleAddClick} className="bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg shadow-teal-600/20 hover:shadow-teal-600/30 transition-all">
-                            <Plus className="h-4 w-4 mr-2" /> Add Table
+
+                        <Button onClick={handleAddClick} className="h-10 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm border-none">
+                            <Plus className="h-4 w-4 mr-2" />
+                            <span>Deploy Table</span>
                         </Button>
                     </div>
                 </div>
 
                 {/* Zone Tabs */}
-                <div className="px-8 pt-6 pb-2">
-                    {/* ... (Same as Admin) ... */}
+                <div className="px-8 pt-6 pb-2 shrink-0">
                     <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
                         {zones.map(zone => (
                             <button
                                 key={zone}
                                 onClick={() => setActiveZone(zone)}
                                 className={cn(
-                                    "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 border",
+                                    "px-4 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 border",
                                     activeZone === zone
-                                        ? "bg-gray-900 text-white border-gray-900 shadow-md dark:bg-white dark:text-black dark:border-white"
-                                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900 dark:bg-transparent dark:border-gray-700 dark:text-gray-400"
+                                        ? "bg-foreground text-background border-foreground shadow-sm"
+                                        : "bg-background text-muted-foreground border-border hover:border-muted-foreground/30 hover:text-foreground"
                                 )}
                             >
                                 {zone}
@@ -158,19 +156,18 @@ const ManageTables = () => {
                 </div>
 
                 {/* Tables Grid */}
-                <ScrollArea className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden px-8 pb-10 ">
+                <div className="flex-1 w-full overflow-y-auto min-h-0 custom-scrollbar relative">
+                    <div className="px-8 pb-32">
                         {isLoading ? (
-                            <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                                 <Grid2x2Check className="h-10 w-10 mb-4 opacity-20 animate-pulse" />
                                 <p>Loading layout...</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8 pt-8 pb-20">
-                                {/* Add Button */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 pt-8">
                                 <div
                                     onClick={handleAddClick}
-                                    className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl flex flex-col items-center justify-center h-48 cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-900/10 transition-all group min-h-[12rem]"
+                                    className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl flex flex-col items-center justify-center min-h-[200px] cursor-pointer hover:border-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-900/10 transition-all group"
                                 >
                                     <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-teal-100 dark:group-hover:bg-teal-900 transition-colors">
                                         <Plus className="h-6 w-6 text-gray-400 group-hover:text-teal-600 transition-colors" />
@@ -184,19 +181,18 @@ const ManageTables = () => {
                                             table={table}
                                             onClick={handleTableClick}
                                         />
-                                        {/* Quick Actions */}
-                                        <div className="absolute top-0 right-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 z-20">
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 z-20">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-white  shadow-md hover:bg-gray-50 border border-gray-100">
-                                                        <MoreVertical className="h-4 w-4 text-gray-600" />
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-white dark:bg-zinc-900 shadow-md border border-border">
+                                                        <MoreVertical className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-40">
-                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditClick(table); }}>
+                                                    <DropdownMenuItem onClick={(e) => handleEditClick(table, e)}>
                                                         <Edit className="h-4 w-4 mr-2" /> Edit Details
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteClick(table._id); }} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                                    <DropdownMenuItem onClick={(e) => handleDeleteClick(table._id, e)} className="text-red-600 focus:text-red-600">
                                                         <Trash2 className="h-4 w-4 mr-2" /> Delete
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -207,155 +203,209 @@ const ManageTables = () => {
                             </div>
                         )}
                     </div>
-                </ScrollArea>
+                </div>
             </div>
 
-            {/* Right Sidebar - Booking/Details */}
-            <div className={cn(
-                "w-[380px] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 flex flex-col h-full shadow-2xl z-30 transition-transform duration-300 ease-in-out transform",
-                selectedTable ? "translate-x-0" : "translate-x-full hidden lg:flex lg:translate-x-0 lg:w-[320px] lg:border-l lg:shadow-none"
+            <aside className={cn(
+                "w-[400px] h-full bg-card border-l flex flex-col shadow-lg z-30 transition-all duration-300 overflow-hidden",
+                selectedTable ? "translate-x-0" : "translate-x-full hidden lg:flex lg:translate-x-0 lg:w-[320px]"
             )}>
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                    <h2 className="font-semibold text-lg flex items-center">
-                        Details & Booking
-                    </h2>
+                {/* Fixed Sidebar Header */}
+                <div className="p-4 border-b flex items-center justify-between shrink-0">
+                    <div>
+                        <h2 className="font-semibold tracking-tight text-lg">
+                            Table Control
+                        </h2>
+                        <p className="text-sm text-muted-foreground">Master Dashboard</p>
+                    </div>
                     {selectedTable && (
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedTable(null)} className="lg:hidden">
-                            Close
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedTable(null)} className="rounded-md">
+                            <XCircle className="w-5 h-5 text-muted-foreground" />
                         </Button>
                     )}
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6">
-                    {selectedTable ? (
-                        <div className="space-y-6">
-                            {/* Table Info */}
-                            <div className="text-center">
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedTable.name}</h3>
-                                <p className="text-sm text-gray-500">{selectedTable.zone}</p>
-                                <span className={cn("px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mt-2 inline-block",
-                                    selectedTable.status === "Available" ? "bg-teal-100 text-teal-700" :
-                                        selectedTable.status === "Occupied" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
-                                )}>
-                                    {selectedTable.status}
-                                </span>
-                            </div>
-
-                            {/* Booking Action */}
-                            {selectedTable.status === "Available" ? (
-                                <div className="space-y-4 border-t pt-4">
-                                    <h4 className="font-semibold text-gray-700">New Reservation</h4>
-                                    <form onSubmit={handleBookingSubmit} className="space-y-3">
-                                        <div className="space-y-1">
-                                            <Label>Guest Name</Label>
-                                            <Input
-                                                value={bookingForm.bookedBy}
-                                                onChange={(e) => setBookingForm({ ...bookingForm, bookedBy: e.target.value })}
-                                                placeholder="John Doe"
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label>Contact Phone</Label>
-                                            <Input
-                                                value={bookingForm.contact}
-                                                onChange={(e) => setBookingForm({ ...bookingForm, contact: e.target.value })}
-                                                placeholder="+1 234 567 890"
-                                                required
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div className="space-y-1">
-                                                <Label>Guests</Label>
-                                                <Input
-                                                    type="number" min="1" max={selectedTable.capacity}
-                                                    value={bookingForm.guests}
-                                                    onChange={(e) => setBookingForm({ ...bookingForm, guests: parseInt(e.target.value) })}
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label>Time</Label>
-                                                <Input
-                                                    type="datetime-local"
-                                                    value={bookingForm.date}
-                                                    onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label>Notes</Label>
-                                            <Input
-                                                value={bookingForm.notes}
-                                                onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
-                                                placeholder="Allergies, intro..."
-                                            />
-                                        </div>
-                                        <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white">
-                                            Confirm Reservation
-                                        </Button>
-                                    </form>
-                                </div>
-                            ) : selectedTable.status === "Reserved" ? (
-                                <div className="space-y-4 border-t pt-4">
-                                    <h4 className="font-semibold text-gray-700 flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" /> Reservation Info
-                                    </h4>
-                                    <div className="bg-amber-50 p-4 rounded-lg space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Booked By:</span>
-                                            <span className="font-medium">{selectedTable.reservation?.bookedBy}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Contact:</span>
-                                            <span className="font-medium">{selectedTable.reservation?.contact}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Guests:</span>
-                                            <span className="font-medium">{selectedTable.reservation?.guests}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Date:</span>
-                                            <span className="font-medium">
-                                                {selectedTable.reservation?.date ? new Date(selectedTable.reservation?.date).toLocaleString() : "N/A"}
-                                            </span>
-                                        </div>
-                                        {selectedTable.reservation?.notes && (
-                                            <div className="pt-2 border-t border-amber-200">
-                                                <p className="text-gray-500 text-xs">Notes:</p>
-                                                <p className="italic">{selectedTable.reservation?.notes}</p>
-                                            </div>
-                                        )}
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar relative">
+                    <div className="p-4 space-y-6">
+                        {selectedTable ? (
+                            <div className="space-y-6 pb-6">
+                                {/* Table Info Card */}
+                                <div className="bg-card p-6 rounded-md border text-center relative overflow-hidden flex flex-col items-center">
+                                    <div className="w-12 h-12 bg-primary/10 rounded-md flex items-center justify-center mb-3">
+                                        <Armchair className="w-6 h-6 text-primary" />
                                     </div>
-                                    <Button onClick={handleCancelReservation} variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50">
-                                        Cancel Reservation
-                                    </Button>
+                                    <h3 className="text-xl font-semibold mb-1">{selectedTable.name}</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {selectedTable.zone} • {selectedTable.capacity} Seats
+                                    </p>
+                                    <Badge variant="outline" className={cn(
+                                        "mt-3 px-3 py-1 rounded-md font-medium capitalize",
+                                        selectedTable.status === 'Available' ? "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/50" :
+                                            selectedTable.status === 'Occupied' ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50" :
+                                                "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50"
+                                    )}>
+                                        {selectedTable.status}
+                                    </Badge>
+                                </div>
 
-                                    {/* Link to convert to Active Dining (Later feature) */}
-                                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
-                                        Check-in / Start Dining
+                                {/* Active Session vs Booking Form */}
+                                {selectedTable.status === 'Occupied' ? (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="w-4 h-4 text-muted-foreground" />
+                                            <span className="text-sm font-semibold">Current Session</span>
+                                        </div>
+                                        <div className="rounded-md border p-4 space-y-3 bg-muted/20">
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">Customer</span>
+                                                <span className="font-medium">{selectedTable.currentSession?.customerName || "Walk-in Guest"}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">Arrival</span>
+                                                <span className="font-medium">{selectedTable.currentSession?.startTime || "10 mins ago"}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm pt-2 border-t">
+                                                <span className="text-muted-foreground">Running Total</span>
+                                                <span className="font-medium text-primary">Rs. 1,250</span>
+                                            </div>
+                                        </div>
+                                        <Button className="w-full rounded-md">
+                                            Manage Order
+                                        </Button>
+                                    </div>
+                                ) : selectedTable.status === 'Reserved' ? (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="w-4 h-4 text-muted-foreground" />
+                                            <span className="text-sm font-semibold">Reservation Details</span>
+                                        </div>
+                                        <div className="rounded-md border p-4 space-y-3 bg-muted/20">
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">Guest</span>
+                                                <span className="font-medium">{selectedTable.reservation?.bookedBy}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">Contact</span>
+                                                <span className="font-medium">{selectedTable.reservation?.contact}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-muted-foreground">Arrival</span>
+                                                <span className="font-medium">
+                                                    {selectedTable.reservation?.date ? format(new Date(selectedTable.reservation.date), 'p | MMM do') : "N/A"}
+                                                </span>
+                                            </div>
+                                            {selectedTable.reservation?.notes && (
+                                                <div className="pt-3 mt-3 border-t">
+                                                    <p className="text-xs text-muted-foreground italic">"{selectedTable.reservation.notes}"</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <Button className="w-full rounded-md">
+                                                Check-in Guest
+                                            </Button>
+                                            <Button onClick={handleCancelReservation} variant="outline" className="w-full rounded-md text-destructive hover:text-destructive/90">
+                                                Cancel Reservation
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            <Plus className="w-4 h-4 text-muted-foreground" />
+                                            <span className="text-sm font-semibold">New Reservation</span>
+                                        </div>
+                                        <form onSubmit={handleBookingSubmit} className="space-y-3">
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Guest Name</Label>
+                                                <Input
+                                                    placeholder="Enter full name"
+                                                    className="rounded-md"
+                                                    value={bookingForm.bookedBy}
+                                                    onChange={e => setBookingForm({ ...bookingForm, bookedBy: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Contact Number</Label>
+                                                <Input
+                                                    placeholder="+92 XXX XXXXXXX"
+                                                    className="rounded-md"
+                                                    value={bookingForm.contact}
+                                                    onChange={e => setBookingForm({ ...bookingForm, contact: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-1">
+                                                    <Label className="text-xs">Heads</Label>
+                                                    <Input
+                                                        type="number"
+                                                        className="rounded-md"
+                                                        value={bookingForm.guests}
+                                                        onChange={e => setBookingForm({ ...bookingForm, guests: parseInt(e.target.value) })}
+                                                        min={1} max={selectedTable.capacity}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <Label className="text-xs">Arrival</Label>
+                                                    <Input
+                                                        type="datetime-local"
+                                                        className="rounded-md text-xs"
+                                                        value={bookingForm.date}
+                                                        onChange={e => setBookingForm({ ...bookingForm, date: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-xs">Special Notes</Label>
+                                                <Input
+                                                    placeholder="Allergies, occasions..."
+                                                    className="rounded-md"
+                                                    value={bookingForm.notes}
+                                                    onChange={e => setBookingForm({ ...bookingForm, notes: e.target.value })}
+                                                />
+                                            </div>
+                                            <Button type="submit" className="w-full rounded-md mt-2">
+                                                Confirm Reservation
+                                            </Button>
+                                        </form>
+                                    </div>
+                                )}
+
+                                {/* Admin Actions Toolbar */}
+                                <div className="pt-4 border-t space-y-2">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full rounded-md border-dashed flex items-center justify-center gap-2"
+                                        onClick={(e) => handleEditClick(selectedTable, e)}
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                        Modify Asset Layout
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full rounded-md text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center justify-center gap-2"
+                                        onClick={(e) => handleDeleteClick(selectedTable._id, e)}
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                        Remove from Floor
                                     </Button>
                                 </div>
-                            ) : (
-                                <div className="text-center py-10 text-gray-500">
-                                    <p>Table is currently Occupied.</p>
-                                    <Button variant="outline" className="mt-4">
-                                        View Order (Coming Soon)
-                                    </Button>
-                                </div>
-                            )}
-
-                        </div>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-gray-400 text-center space-y-4 opacity-60">
-                            <Grid2x2Check className="h-16 w-16 text-gray-200" />
-                            <div>
-                                <h3 className="text-gray-900 font-medium">No Table Selected</h3>
-                                <p className="text-sm">Select a table to manage bookings.</p>
                             </div>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] text-center opacity-50">
+                                <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center mb-4">
+                                    <LayoutGrid className="w-8 h-8 text-muted-foreground" />
+                                </div>
+                                <h3 className="text-sm font-semibold text-foreground">No Selection</h3>
+                                <p className="text-xs text-muted-foreground mt-1">Select a table to configure details</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </aside>
 
             {/* Modal */}
             <AddTableModal
@@ -363,8 +413,7 @@ const ManageTables = () => {
                 onClose={() => setIsModalOpen(false)}
                 tableToEdit={editingTable}
             />
-
-        </div >
+        </div>
     );
 };
 

@@ -3,18 +3,20 @@ import {
     TrendingUp, ShoppingBag, Users, Package,
     ArrowUpRight, ArrowDownRight, Clock, ChevronRight,
     Utensils, AlertTriangle, UserCheck, CalendarDays,
-    LayoutDashboard
+    LayoutDashboard, Activity
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import useDashboardStore from "@/store/useDashboardStore";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import StatCard from "../Components/StatCard";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell
+    PieChart, Pie, Cell, ResponsiveContainer, Tooltip
 } from "recharts";
 
 const AdminDashboard = () => {
@@ -28,10 +30,22 @@ const AdminDashboard = () => {
 
     if (!dashboardData && isLoading) {
         return (
-            <div className="p-8 flex items-center justify-center min-h-[80vh]">
-                <div className="flex flex-col items-center gap-4 text-muted-foreground animate-pulse">
-                    <LayoutDashboard className="size-12" />
-                    <p className="font-medium">Loading Dashboard Intelligence...</p>
+            <div className="p-8 space-y-8 bg-background/50 h-full">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="space-y-2">
+                        <Skeleton className="h-10 w-48" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                    <Skeleton className="h-8 w-32" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((i) => (
+                        <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Skeleton className="h-[400px] rounded-2xl" />
+                    <Skeleton className="lg:col-span-2 h-[400px] rounded-2xl" />
                 </div>
             </div>
         );
@@ -39,7 +53,7 @@ const AdminDashboard = () => {
 
     const { summary, lowStockItems, recentOrders, recentClients } = dashboardData || {};
 
-    const COLORS = ["#0d9488", "#fbbf24", "#f43f5e", "#64748b"];
+    const COLORS = ["var(--primary)", "#fbbf24", "#f43f5e", "#64748b"];
     const pieData = summary ? [
         { name: "Occupied", value: summary.occupancy.occupied },
         { name: "Reserved", value: summary.occupancy.reserved },
@@ -47,15 +61,26 @@ const AdminDashboard = () => {
     ] : [];
 
     return (
-        <div className="p-6 space-y-8 bg-background/50 h-full">
+        <div className="p-6 md:p-8 space-y-8 bg-background min-h-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-4xl font-black tracking-tight text-teal-950">Overview</h1>
-                    <p className="text-muted-foreground font-medium">Real-time restaurant performance & intelligence.</p>
+                <div className="space-y-0.5">
+                    <h1 className="text-3xl font-bold tracking-tight">Dashboard Overview</h1>
+                    <p className="text-sm text-muted-foreground">Monitor your restaurant's performance and operations.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="bg-teal-500/5 text-teal-700 border-teal-500/20 py-1.5 px-3">
-                        <Clock className="size-3 mr-2 animate-pulse" /> Live System Active
+                    <div className="hidden md:flex -space-x-2">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="size-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium text-muted-foreground">
+                                {String.fromCharCode(64 + i)}
+                            </div>
+                        ))}
+                    </div>
+                    <Badge variant="outline" className="flex items-center gap-2 py-1.5 px-3 bg-background border-border">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span className="font-medium text-xs">Live System</span>
                     </Badge>
                 </div>
             </div>
@@ -64,7 +89,7 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     label="Today's Revenue"
-                    value={`$${summary?.todayRevenue?.toLocaleString()}`}
+                    value={`Rs ${summary?.todayRevenue?.toLocaleString()}`}
                     sub="Gross Earnings"
                     icon={TrendingUp}
                     trend="+12.5%"
@@ -100,79 +125,115 @@ const AdminDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Occupancy Chart */}
-                <Card className="lg:col-span-1 shadow-sm border-teal-500/10">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Utensils className="size-5 text-teal-700" /> Dining Occupancy
+                <Card className="lg:col-span-1 shadow-sm border border-border">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <Utensils className="size-4 text-muted-foreground" /> Dining Status
                         </CardTitle>
-                        <CardDescription>Real-time table status distribution.</CardDescription>
+                        <CardDescription className="text-xs">Real-time table distribution.</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[300px] flex flex-col items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4">
+                        <div className="relative w-full h-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={pieData}
+                                        innerRadius={60}
+                                        outerRadius={80}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                        stroke="transparent"
+                                    >
+                                        {pieData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        contentStyle={{ 
+                                            backgroundColor: 'white', 
+                                            border: '1px solid #e1e1e1', 
+                                            borderRadius: '8px',
+                                            fontSize: '12px'
+                                        }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span className="text-2xl font-bold">{summary?.occupancy?.total || 0}</span>
+                                <span className="text-[10px] text-muted-foreground uppercase">Tables</span>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 w-full px-2">
                             {pieData.map((d, i) => (
-                                <div key={i} className="flex items-center gap-2 text-xs font-semibold">
+                                <div key={i} className="flex items-center gap-2 text-xs">
                                     <div className="size-2 rounded-full" style={{ backgroundColor: COLORS[i] }} />
-                                    <span className="text-muted-foreground uppercase">{d.name}:</span>
-                                    <span>{d.value}</span>
+                                    <span className="text-muted-foreground">{d.name}:</span>
+                                    <span className="font-semibold">{d.value}</span>
                                 </div>
                             ))}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Recent Orders Timeline */}
-                <Card className="lg:col-span-2 shadow-sm">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="flex items-center gap-2">
-                                <Clock className="size-5 text-teal-700" /> Recent Activity
+                {/* Recent Orders Activity Feed */}
+                <Card className="lg:col-span-2 shadow-sm border border-border overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/30 pb-4">
+                        <div className="space-y-1">
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                                <Activity className="size-4 text-muted-foreground" /> Recent Operations
                             </CardTitle>
-                            <CardDescription>Live feed of latest transactions.</CardDescription>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-teal-700 font-bold group">
-                            View All <ChevronRight className="size-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
+                            View All <ChevronRight className="size-3 ml-1" />
                         </Button>
                     </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[300px] pr-4">
-                            <div className="space-y-4">
-                                {recentOrders?.map((order) => (
-                                    <div key={order._id} className="flex items-center justify-between p-4 bg-muted/20 rounded-xl border border-transparent hover:border-teal-500/20 hover:bg-muted/40 transition-all group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="size-10 bg-background rounded-full flex items-center justify-center shadow-sm border border-muted group-hover:scale-110 transition-transform">
-                                                <ShoppingBag className="size-5 text-teal-700" />
+                    <CardContent className="p-0">
+                        <ScrollArea className="h-[400px]">
+                            <div className="divide-y divide-border">
+                                {recentOrders?.length > 0 ? (
+                                    recentOrders.map((order) => (
+                                        <div 
+                                            key={order._id} 
+                                            className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="size-10 bg-muted rounded-md flex items-center justify-center border border-border">
+                                                    <ShoppingBag className="size-5 text-muted-foreground" />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-sm">{order.orderId}</span>
+                                                        <Badge variant="outline" className="text-[10px] py-0 px-1 font-medium bg-muted/50 border-border">
+                                                            {order.orderType || "Dine-in"}
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        <span>{order.client?.name || "Walk-in"}</span> • <span>{format(new Date(order.createdAt), "hh:mm a")}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-bold text-sm text-teal-950 uppercase tracking-tight">{order.orderId}</p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {order.client?.name || "Walk-in"} • {format(new Date(order.createdAt), "hh:mm a")}
-                                                </p>
+                                            <div className="text-right flex flex-col items-end gap-1">
+                                                <span className="font-bold text-sm">Rs {order.totalAmount.toLocaleString()}</span>
+                                                <Badge 
+                                                    className={cn(
+                                                        "text-[9px] font-semibold py-0 transition-none",
+                                                        order.status === "Completed" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : 
+                                                        order.status === "Pending" ? "bg-amber-50 text-amber-700 border-amber-200" : 
+                                                        "bg-primary/10 text-primary border-primary/20"
+                                                    )}
+                                                    variant="outline"
+                                                >
+                                                    {order.status}
+                                                </Badge>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="font-black text-teal-700">${order.totalAmount.toLocaleString()}</p>
-                                            <Badge variant="outline" className="text-[10px] mt-1 scale-90 origin-right">
-                                                {order.status}
-                                            </Badge>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="h-[300px] flex flex-col items-center justify-center text-muted-foreground">
+                                        <Package className="size-8 mb-2 opacity-50" />
+                                        <p className="text-sm">No recent activity</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </ScrollArea>
                     </CardContent>
@@ -181,67 +242,79 @@ const AdminDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Low Stock Alerts */}
-                <Card className="border-rose-500/10 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-rose-700">
-                            <AlertTriangle className="size-5" /> Inventory Warnings
+                <Card className="shadow-sm border border-border">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <AlertTriangle className="size-4 text-muted-foreground" /> Inventory Warnings
                         </CardTitle>
-                        <CardDescription>Items running below critical reorder levels.</CardDescription>
+                        <CardDescription className="text-xs">Items below critical level.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {lowStockItems?.map((item) => (
-                                <div key={item._id} className="flex items-center justify-between p-3 bg-rose-50/30 border border-rose-100/50 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-8 bg-rose-100 rounded flex items-center justify-center">
-                                            <Package className="size-4 text-rose-600" />
+                            {lowStockItems?.length > 0 ? (
+                                lowStockItems.map((item) => (
+                                    <div key={item._id} className="flex items-center justify-between p-3 bg-muted/20 border border-border rounded-md hover:bg-muted/40 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-8 bg-background border border-border rounded flex items-center justify-center">
+                                                <Package className="size-4 text-muted-foreground" />
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <p className="text-sm font-semibold">{item.name}</p>
+                                                <p className="text-[10px] text-muted-foreground uppercase">{item.category}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-bold">{item.name}</p>
-                                            <p className="text-xs text-muted-foreground">Category: {item.category}</p>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-rose-600">{item.quantity} {item.unit}</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase opacity-70">Limit: {item.reorderLevel}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-black text-rose-600">{item.quantity} {item.unit}</p>
-                                        <p className="text-[10px] text-muted-foreground uppercase">Level: {item.reorderLevel}</p>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-8 text-center text-muted-foreground text-sm">
+                                    Inventory levels are stable
                                 </div>
-                            ))}
-                            <Button className="w-full mt-2 variant-ghost bg-rose-500 text-white hover:bg-rose-600">
-                                Restock Inventory
+                            )}
+                            <Button variant="outline" className="w-full mt-2 text-xs font-semibold uppercase tracking-wide">
+                                Open Inventory
                             </Button>
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* New Customers */}
-                <Card className="shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <CalendarDays className="size-5 text-teal-700" /> Recently Onboarded
+                <Card className="shadow-sm border border-border">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <Users className="size-4 text-muted-foreground" /> Recently Registered
                         </CardTitle>
-                        <CardDescription>New additions to your customer directory.</CardDescription>
+                        <CardDescription className="text-xs">Newest additions to community.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ScrollArea className="h-[250px] pr-4">
-                            <div className="space-y-4">
-                                {recentClients?.map((client) => (
-                                    <div key={client._id} className="flex items-center justify-between p-3 hover:bg-muted/30 rounded-lg transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-9 bg-teal-100 text-teal-800 rounded-full flex items-center justify-center font-black text-xs">
-                                                {client.name.charAt(0)}
+                        <ScrollArea className="h-[280px]">
+                            <div className="space-y-3 pr-4">
+                                {recentClients?.length > 0 ? (
+                                    recentClients.map((client) => (
+                                        <div key={client._id} className="flex items-center justify-between p-3 bg-muted/20 border border-border rounded-md hover:bg-muted/40 transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <div className="size-10 bg-primary/5 text-primary border border-primary/10 rounded-md flex items-center justify-center font-bold text-sm uppercase">
+                                                    {client.name.charAt(0)}
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-sm font-semibold">{client.name}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-medium uppercase">{format(new Date(client.createdAt), "MMM d, yyyy")}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-teal-950 uppercase tracking-tight">{client.name}</p>
-                                                <p className="text-[10px] text-muted-foreground">Joined {format(new Date(client.createdAt), "MMM d")}</p>
+                                            <div className="text-right">
+                                                <p className="text-sm font-bold">Rs {client.totalSpent.toLocaleString()}</p>
+                                                <p className="text-[10px] text-muted-foreground uppercase tracking-tight opacity-70">Total Spent</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-xs font-bold text-teal-600">${client.totalSpent.toLocaleString()}</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase">Lifetime</p>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-8 text-center text-muted-foreground text-sm">
+                                        No recent registrations
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </ScrollArea>
                     </CardContent>
@@ -250,47 +323,5 @@ const AdminDashboard = () => {
         </div>
     );
 };
-
-// eslint-disable-next-line no-unused-vars
-const StatCard = ({ label, value, sub, icon: IconComponent, trend, trendUp, color }) => {
-    const colorMap = {
-        teal: "bg-teal-500",
-        amber: "bg-amber-500",
-        rose: "bg-rose-500",
-        indigo: "bg-indigo-500",
-        emerald: "bg-emerald-500"
-    };
-
-    return (
-        <Card className="overflow-hidden border-none shadow-lg relative group">
-            <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">{label}</p>
-                        <h3 className="text-3xl font-black tracking-tighter text-teal-950">{value}</h3>
-                        <p className="text-xs font-medium text-muted-foreground">{sub}</p>
-                    </div>
-                    <div className={`p-3 rounded-2xl ${colorMap[color]} text-white shadow-lg shadow-${color}-500/20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}>
-                        <IconComponent className="size-5" />
-                    </div>
-                </div>
-                {trend && (
-                    <div className="mt-4 flex items-center gap-2">
-                        {trendUp !== undefined && (
-                            <div className={`flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded ${trendUp ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>
-                                {trendUp ? <ArrowUpRight className="size-3 mr-0.5" /> : <ArrowDownRight className="size-3 mr-0.5" />}
-                                {trend}
-                            </div>
-                        )}
-                        {trendUp === undefined && (
-                            <Badge variant="secondary" className="text-[10px] h-5 font-bold">{trend}</Badge>
-                        )}
-                    </div>
-                )}
-            </CardContent>
-            <div className={`absolute bottom-0 left-0 h-1 w-full ${colorMap[color]} opacity-30 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]`} />
-        </Card>
-    );
-};
-
 export default AdminDashboard;
+

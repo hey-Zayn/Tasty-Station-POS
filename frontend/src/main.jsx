@@ -9,8 +9,6 @@ import { Toaster } from './components/ui/sonner'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <Navbar />
-      <Toaster />
       <App />
     </BrowserRouter>
   </StrictMode>,

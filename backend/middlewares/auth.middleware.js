@@ -48,7 +48,7 @@ const isAdmin = async (req, res, next) => {
                 message: "Forbidden - Admin Access Required"
             });
         }
-    } catch (error) {
+    } catch (_error) {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
