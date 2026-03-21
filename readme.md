@@ -198,7 +198,3 @@ Zayn - [GitHub](https://github.com/hey-Zayn)
 
 **If you found this project helpful, please give it a ⭐ to show your support!**
 
----
-
-### 🏷️ Keywords
-Restaurant POS, MERN Stack, Kitchen Display System, Real-time WebSockets, MongoDB Transactions, React PWA, Node.js API, Inventory Management.
