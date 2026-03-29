@@ -31,6 +31,10 @@ redisClient.on('connect', () => console.log('⌚ Redis Client Connecting...'));
 redisClient.on('ready', () => console.log('✅ Redis Client Ready'));
 
 (async () => {
+    if (process.env.NODE_ENV === 'test') {
+        redisClient.isOpen = false;
+        return;
+    }
     try {
         await redisClient.connect();
     } catch (err) {

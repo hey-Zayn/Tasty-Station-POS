@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useOrderStore } from '../useOrderStore';
+import { useOrderStore } from '../../store/useOrderStore';
 
 // Mock the dependencies
 vi.mock('sonner', () => ({

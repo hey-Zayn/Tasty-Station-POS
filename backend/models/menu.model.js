@@ -78,7 +78,7 @@ const menuItemSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-const Category = mongoose.model("Category", categorySchema);
-const MenuItem = mongoose.model("MenuItem", menuItemSchema);
+const Category = mongoose.models.Category || mongoose.model("Category", categorySchema);
+const MenuItem = mongoose.models.MenuItem || mongoose.model("MenuItem", menuItemSchema);
 
 module.exports = { Category, MenuItem };

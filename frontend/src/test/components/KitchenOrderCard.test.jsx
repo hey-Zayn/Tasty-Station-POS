@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import KitchenOrderCard from '../KitchenOrderCard';
+import KitchenOrderCard from '@/pages/dashboard/components/kitchen/KitchenOrderCard';
 import { vi } from 'vitest';
 
 describe('KitchenOrderCard UI Component', () => {
