@@ -2,6 +2,10 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { beforeAll, afterAll, afterEach, vi } from 'vitest';
 
+// Guarantee that these environment variables exist for CI
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_ci_pipeline';
+process.env.NODE_ENV = 'test';
+
 // Mock Cloudinary to avoid external API calls during tests
 vi.mock('../config/cloudinary/cloudinary', () => ({
     uploader: {
