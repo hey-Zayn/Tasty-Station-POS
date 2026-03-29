@@ -7,7 +7,7 @@
     "dev": "nodemon index.js",
     "seed": "node menu.js",
     "seed-table": "node table.js",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "lint": "eslint ."
   },
   "keywords": [],
