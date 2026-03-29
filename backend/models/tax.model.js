@@ -17,5 +17,5 @@ const taxSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-const Tax = mongoose.model("Tax", taxSchema);
+const Tax = mongoose.models.Tax || mongoose.model("Tax", taxSchema);
 module.exports = Tax;

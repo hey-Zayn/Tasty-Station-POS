@@ -28,5 +28,5 @@ const discountSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-const Discount = mongoose.model("Discount", discountSchema);
+const Discount = mongoose.models.Discount || mongoose.model("Discount", discountSchema);
 module.exports = Discount;

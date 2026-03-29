@@ -49,7 +49,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+    setupFiles: './src/test/setup.jsx',
     css: true,
   },
 })
