@@ -1,4 +1,5 @@
 const ApiError = require("../utils/ApiError");
+const logger = require("../utils/logger");
 
 /**
  * Global error handling middleware.
@@ -12,6 +13,15 @@ const errorHandler = (err, req, res, _next) => {
         const statusCode = error.statusCode || 500;
         const message = error.message || "Internal Server Error";
         error = new ApiError(statusCode, message, [], err.stack);
+    }
+
+    // Capture sever errors to Winston for structured JSON logs in Vercel
+    if (error.statusCode === 500 || process.env.NODE_ENV === 'development') {
+        logger.error(`[API Error] ${error.message}`, {
+            path: req.originalUrl,
+            method: req.method,
+            stack: error.stack,
+        });
     }
 
     const response = {

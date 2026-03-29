@@ -4,6 +4,8 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const http = require("http");
 const rateLimit = require("express-rate-limit");
+const morgan = require("morgan");
+const logger = require("./utils/logger");
 const { initSocket } = require("./config/socket.config");
 
 const connectDB = require("./config/database/connection");
@@ -34,6 +36,12 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api', apiLimiter);
+
+if (process.env.NODE_ENV !== "test") {
+    // Inject Morgan HTTP logging into Winston
+    const morganFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
+    app.use(morgan(morganFormat, { stream: logger.stream }));
+}
 
 // App initialization
 initSocket(server);
@@ -101,7 +109,7 @@ app.get('/', (req, res) => {
 
 if (process.env.NODE_ENV !== 'test') {
     server.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+        logger.info(`Server is running on port ${port}`);
     });
 }
 
