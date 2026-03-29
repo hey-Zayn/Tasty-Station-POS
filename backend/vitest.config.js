@@ -5,5 +5,7 @@ export default defineConfig({
     test: {
         globals: true, // Globals like describe, it, expect are available everywhere
         setupFiles: ['./__tests__/setup.db.js'], // A global hook to start the memory server
+        hookTimeout: 30000, // MongoDB memory server can take some time to download/spin up
+        testTimeout: 30000,
     },
 });
